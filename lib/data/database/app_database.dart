@@ -36,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'cuadra'));
 
   /// Para pruebas: recibe un ejecutor en memoria.
-  AppDatabase.forTesting(QueryExecutor executor) : super(executor);
+  AppDatabase.forTesting(super.executor);
 
   @override
   int get schemaVersion => 1;
@@ -91,11 +91,15 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<Negocio?> negocioActual() {
-    return (select(negocios)..limit(1)).getSingleOrNull();
+    return (select(negocios)
+          ..orderBy([(n) => OrderingTerm.asc(n.id)])
+          ..limit(1)).getSingleOrNull();
   }
 
   Stream<Negocio?> watchNegocio() {
-    return (select(negocios)..limit(1)).watchSingleOrNull();
+    return (select(negocios)
+          ..orderBy([(n) => OrderingTerm.asc(n.id)])
+          ..limit(1)).watchSingleOrNull();
   }
 
   // ------------------------------------------------------------------- Caja

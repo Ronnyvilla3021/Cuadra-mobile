@@ -6,19 +6,20 @@ import '../../core/utils/money.dart';
 import '../../data/database/enums.dart';
 import '../../data/providers.dart';
 
-/// TEMPORAL (Paso 2): muestra el saldo desde la base de datos y, solo en
-/// modo debug, un botón para insertar un ingreso de prueba. En el Paso 4 se
-/// reemplaza por el Dashboard real.
+/// TEMPORAL: muestra el nombre del negocio y el saldo desde la base de datos
+/// y, solo en modo debug, un botón para insertar un ingreso de prueba.
+/// En el Paso 5 se reemplaza por el Dashboard real.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final negocio = ref.watch(negocioProvider).value;
     final saldo = ref.watch(saldoCentavosProvider);
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Inicio')),
+      appBar: AppBar(title: Text(negocio?.nombre ?? 'Inicio')),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

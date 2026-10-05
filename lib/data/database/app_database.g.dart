@@ -3097,6 +3097,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_movimientos_fecha',
     'CREATE INDEX idx_movimientos_fecha ON movimientos (fecha)',
   );
+  late final Index idxFiadoCliente = Index(
+    'idx_fiado_cliente',
+    'CREATE INDEX idx_fiado_cliente ON movimientos_fiado (cliente_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3110,6 +3114,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     empleados,
     pagosEmpleado,
     idxMovimientosFecha,
+    idxFiadoCliente,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

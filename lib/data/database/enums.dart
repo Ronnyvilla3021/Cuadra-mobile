@@ -1,5 +1,5 @@
-/// Enumeraciones guardadas como texto (su nombre) en la base de datos.
-/// IMPORTANTE: no renombrar valores existentes sin una migración.
+// Enumeraciones guardadas como texto (su nombre) en la base de datos.
+// IMPORTANTE: no renombrar valores existentes sin una migración.
 
 enum TipoMovimiento { ingreso, gasto }
 

@@ -4,13 +4,26 @@ import 'package:go_router/go_router.dart';
 import '../../features/caja/caja_screen.dart';
 import '../../features/fiados/fiados_screen.dart';
 import '../../features/home/home_screen.dart';
+import '../../features/onboarding/onboarding_screen.dart';
+import '../../features/onboarding/splash_screen.dart';
 import '../../features/personal/personal_screen.dart';
 import '../widgets/adaptive_scaffold.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/inicio',
+    initialLocation: '/',
     routes: [
+      // Arranque: decide si hace falta configurar el negocio.
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/bienvenida',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      // App principal con navegación inferior / lateral.
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AdaptiveScaffold(navigationShell: navigationShell),

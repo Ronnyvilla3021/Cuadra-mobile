@@ -1,3 +1,7 @@
+// ignore_for_file: recursive_getters
+// (Drift usa `check(columna.isBiggerThanValue(0))` dentro de la propia
+// columna; el analizador lo marca como getter recursivo, pero es lo correcto.)
+
 import 'package:drift/drift.dart';
 
 import 'enums.dart';
@@ -64,6 +68,7 @@ class Clientes extends Table {
 /// Compras fiadas (suman deuda) y pagos (restan deuda).
 /// Deuda actual = SUM(compras) - SUM(pagos).
 @DataClassName('MovimientoFiado')
+@TableIndex(name: 'idx_fiado_cliente', columns: {#clienteId})
 class MovimientosFiado extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get clienteId => integer().references(Clientes, #id)();
