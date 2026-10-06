@@ -1,20 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/pro/pro_providers.dart';
+import '../theme/app_colors.dart';
 import '../utils/breakpoints.dart';
 
 class _Destination {
-  const _Destination(this.label, this.icon, this.selectedIcon);
+  const _Destination(
+    this.label,
+    this.icon,
+    this.selectedIcon, {
+    this.pro = false,
+  });
 
   final String label;
   final IconData icon;
   final IconData selectedIcon;
+
+  /// Si es una función PRO (muestra un candado a los usuarios gratuitos).
+  final bool pro;
 }
 
 /// Contenedor principal:
 /// - Celular: barra de navegación inferior (como en el mockup).
 /// - Tablet: riel lateral, y extendido (con textos) en pantallas anchas.
-class AdaptiveScaffold extends StatelessWidget {
+class AdaptiveScaffold extends ConsumerWidget {
   const AdaptiveScaffold({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
@@ -26,8 +37,8 @@ class AdaptiveScaffold extends StatelessWidget {
       Icons.account_balance_wallet_outlined,
       Icons.account_balance_wallet,
     ),
-    _Destination('Fiados', Icons.groups_outlined, Icons.groups),
-    _Destination('Personal', Icons.badge_outlined, Icons.badge),
+    _Destination('Fiados', Icons.groups_outlined, Icons.groups, pro: true),
+    _Destination('Personal', Icons.badge_outlined, Icons.badge, pro: true),
   ];
 
   void _onSelected(int index) {
@@ -38,9 +49,20 @@ class AdaptiveScaffold extends StatelessWidget {
     );
   }
 
+  Widget _icono(_Destination d, {required bool seleccionado, required bool bloqueado}) {
+    final icono = Icon(seleccionado ? d.selectedIcon : d.icon);
+    if (!d.pro || !bloqueado) return icono;
+    return Badge(
+      backgroundColor: AppColors.pro,
+      label: const Icon(Icons.lock, size: 10, color: Colors.black87),
+      child: icono,
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final size = context.screenSize;
+    final bloqueado = !ref.watch(isProProvider);
 
     // En tablets el contenido no se estira de lado a lado.
     final content = Align(
@@ -60,8 +82,8 @@ class AdaptiveScaffold extends StatelessWidget {
           destinations: [
             for (final d in _destinations)
               NavigationDestination(
-                icon: Icon(d.icon),
-                selectedIcon: Icon(d.selectedIcon),
+                icon: _icono(d, seleccionado: false, bloqueado: bloqueado),
+                selectedIcon: _icono(d, seleccionado: true, bloqueado: bloqueado),
                 label: d.label,
               ),
           ],
@@ -85,8 +107,9 @@ class AdaptiveScaffold extends StatelessWidget {
               destinations: [
                 for (final d in _destinations)
                   NavigationRailDestination(
-                    icon: Icon(d.icon),
-                    selectedIcon: Icon(d.selectedIcon),
+                    icon: _icono(d, seleccionado: false, bloqueado: bloqueado),
+                    selectedIcon:
+                        _icono(d, seleccionado: true, bloqueado: bloqueado),
                     label: Text(d.label),
                   ),
               ],

@@ -7,6 +7,7 @@ import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
 import '../../features/personal/personal_screen.dart';
+import '../../features/pro/paywall_screen.dart';
 import '../widgets/adaptive_scaffold.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -21,6 +22,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/bienvenida',
         builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      // Pantalla de suscripción PRO (a pantalla completa, sobre la barra).
+      GoRoute(
+        path: '/pro',
+        builder: (context, state) => const PaywallScreen(),
       ),
 
       // App principal con navegación inferior / lateral.

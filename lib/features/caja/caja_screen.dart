@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,6 +8,9 @@ import '../../data/database/app_database.dart';
 import '../../data/database/caja_queries.dart';
 import '../../data/database/enums.dart';
 import '../../data/providers.dart';
+import '../ads/ad_banner.dart';
+import '../ads/interstitial_service.dart';
+import '../ads/rewarded_export.dart';
 import 'caja_providers.dart';
 import 'movimiento_sheet.dart';
 
@@ -24,6 +28,9 @@ class _CajaScreenState extends ConsumerState<CajaScreen> {
   int _limite = _pagina;
 
   Future<void> _registrar(TipoMovimiento tipo) async {
+    // Precarga el anuncio mientras el usuario escribe el movimiento.
+    final anuncios = ref.read(interstitialProvider);
+
     final guardado = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -41,6 +48,11 @@ class _CajaScreenState extends ConsumerState<CajaScreen> {
                 : 'Gasto registrado',
           ),
         ),
+      );
+      // Un momento después, para que se vea primero la confirmación.
+      Future<void>.delayed(
+        const Duration(milliseconds: 600),
+        anuncios.mostrarSiCorresponde,
       );
     }
   }
@@ -94,7 +106,28 @@ class _CajaScreenState extends ConsumerState<CajaScreen> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Caja')),
+      bottomNavigationBar: const AdBanner(),
+      appBar: AppBar(
+        title: const Text('Caja'),
+        actions: [
+          if (kDebugMode)
+            IconButton(
+              tooltip: 'Probar video de exportación (solo debug)',
+              icon: const Icon(Icons.ondemand_video),
+              onPressed: () async {
+                final ok = await desbloquearExportacion(context, ref);
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      ok ? 'Exportación desbloqueada' : 'No se desbloqueó',
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
@@ -224,7 +257,7 @@ class _MovimientoTile extends StatelessWidget {
     final esIngreso = movimiento.tipo == TipoMovimiento.ingreso;
     final color = esIngreso ? AppColors.income : AppColors.expense;
     final subtitulo = [
-      if (categoria != null) categoria!,
+      ?categoria,
       _formatearFecha(movimiento.fecha),
     ].join('  ·  ');
 
