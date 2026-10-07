@@ -1614,12 +1614,12 @@ class ClientesCompanion extends UpdateCompanion<Cliente> {
   }
 }
 
-class $MovimientosFiadoTable extends MovimientosFiado
-    with TableInfo<$MovimientosFiadoTable, MovimientoFiado> {
+class $PrestamosTable extends Prestamos
+    with TableInfo<$PrestamosTable, Prestamo> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $MovimientosFiadoTable(this.attachedDatabase, [this._alias]);
+  $PrestamosTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1647,15 +1647,6 @@ class $MovimientosFiadoTable extends MovimientosFiado
       'REFERENCES clientes (id)',
     ),
   );
-  @override
-  late final GeneratedColumnWithTypeConverter<TipoFiado, String> tipo =
-      GeneratedColumn<String>(
-        'tipo',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<TipoFiado>($MovimientosFiadoTable.$convertertipo);
   static const VerificationMeta _montoCentavosMeta = const VerificationMeta(
     'montoCentavos',
   );
@@ -1668,6 +1659,30 @@ class $MovimientosFiadoTable extends MovimientosFiado
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _fechaPrestamoMeta = const VerificationMeta(
+    'fechaPrestamo',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fechaPrestamo =
+      GeneratedColumn<DateTime>(
+        'fecha_prestamo',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _fechaVencimientoMeta = const VerificationMeta(
+    'fechaVencimiento',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fechaVencimiento =
+      GeneratedColumn<DateTime>(
+        'fecha_vencimiento',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _notaMeta = const VerificationMeta('nota');
   @override
   late final GeneratedColumn<String> nota = GeneratedColumn<String>(
@@ -1677,32 +1692,67 @@ class $MovimientosFiadoTable extends MovimientosFiado
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _fechaMeta = const VerificationMeta('fecha');
+  static const VerificationMeta _salioDeCajaMeta = const VerificationMeta(
+    'salioDeCaja',
+  );
   @override
-  late final GeneratedColumn<DateTime> fecha = GeneratedColumn<DateTime>(
-    'fecha',
+  late final GeneratedColumn<bool> salioDeCaja = GeneratedColumn<bool>(
+    'salio_de_caja',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("salio_de_caja" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _movimientoIdMeta = const VerificationMeta(
+    'movimientoId',
+  );
+  @override
+  late final GeneratedColumn<int> movimientoId = GeneratedColumn<int>(
+    'movimiento_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES movimientos (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _creadoEnMeta = const VerificationMeta(
+    'creadoEn',
+  );
+  @override
+  late final GeneratedColumn<DateTime> creadoEn = GeneratedColumn<DateTime>(
+    'creado_en',
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
   );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     clienteId,
-    tipo,
     montoCentavos,
+    fechaPrestamo,
+    fechaVencimiento,
     nota,
-    fecha,
+    salioDeCaja,
+    movimientoId,
+    creadoEn,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'movimientos_fiado';
+  static const String $name = 'prestamos';
   @override
   VerificationContext validateIntegrity(
-    Insertable<MovimientoFiado> instance, {
+    Insertable<Prestamo> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -1729,19 +1779,55 @@ class $MovimientosFiadoTable extends MovimientosFiado
     } else if (isInserting) {
       context.missing(_montoCentavosMeta);
     }
+    if (data.containsKey('fecha_prestamo')) {
+      context.handle(
+        _fechaPrestamoMeta,
+        fechaPrestamo.isAcceptableOrUnknown(
+          data['fecha_prestamo']!,
+          _fechaPrestamoMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fechaPrestamoMeta);
+    }
+    if (data.containsKey('fecha_vencimiento')) {
+      context.handle(
+        _fechaVencimientoMeta,
+        fechaVencimiento.isAcceptableOrUnknown(
+          data['fecha_vencimiento']!,
+          _fechaVencimientoMeta,
+        ),
+      );
+    }
     if (data.containsKey('nota')) {
       context.handle(
         _notaMeta,
         nota.isAcceptableOrUnknown(data['nota']!, _notaMeta),
       );
     }
-    if (data.containsKey('fecha')) {
+    if (data.containsKey('salio_de_caja')) {
       context.handle(
-        _fechaMeta,
-        fecha.isAcceptableOrUnknown(data['fecha']!, _fechaMeta),
+        _salioDeCajaMeta,
+        salioDeCaja.isAcceptableOrUnknown(
+          data['salio_de_caja']!,
+          _salioDeCajaMeta,
+        ),
       );
-    } else if (isInserting) {
-      context.missing(_fechaMeta);
+    }
+    if (data.containsKey('movimiento_id')) {
+      context.handle(
+        _movimientoIdMeta,
+        movimientoId.isAcceptableOrUnknown(
+          data['movimiento_id']!,
+          _movimientoIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('creado_en')) {
+      context.handle(
+        _creadoEnMeta,
+        creadoEn.isAcceptableOrUnknown(data['creado_en']!, _creadoEnMeta),
+      );
     }
     return context;
   }
@@ -1749,9 +1835,9 @@ class $MovimientosFiadoTable extends MovimientosFiado
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  MovimientoFiado map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Prestamo map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return MovimientoFiado(
+    return Prestamo(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -1760,94 +1846,127 @@ class $MovimientosFiadoTable extends MovimientosFiado
         DriftSqlType.int,
         data['${effectivePrefix}cliente_id'],
       )!,
-      tipo: $MovimientosFiadoTable.$convertertipo.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}tipo'],
-        )!,
-      ),
       montoCentavos: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}monto_centavos'],
       )!,
+      fechaPrestamo: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fecha_prestamo'],
+      )!,
+      fechaVencimiento: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fecha_vencimiento'],
+      ),
       nota: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}nota'],
       ),
-      fecha: attachedDatabase.typeMapping.read(
+      salioDeCaja: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}salio_de_caja'],
+      )!,
+      movimientoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}movimiento_id'],
+      ),
+      creadoEn: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
-        data['${effectivePrefix}fecha'],
+        data['${effectivePrefix}creado_en'],
       )!,
     );
   }
 
   @override
-  $MovimientosFiadoTable createAlias(String alias) {
-    return $MovimientosFiadoTable(attachedDatabase, alias);
+  $PrestamosTable createAlias(String alias) {
+    return $PrestamosTable(attachedDatabase, alias);
   }
-
-  static JsonTypeConverter2<TipoFiado, String, String> $convertertipo =
-      const EnumNameConverter<TipoFiado>(TipoFiado.values);
 }
 
-class MovimientoFiado extends DataClass implements Insertable<MovimientoFiado> {
+class Prestamo extends DataClass implements Insertable<Prestamo> {
   final int id;
   final int clienteId;
-  final TipoFiado tipo;
   final int montoCentavos;
+  final DateTime fechaPrestamo;
+
+  /// Fecha en que se espera el pago (null = sin fecha).
+  final DateTime? fechaVencimiento;
   final String? nota;
-  final DateTime fecha;
-  const MovimientoFiado({
+
+  /// Si el dinero salió de la caja (se decide al crear el préstamo y ya no
+  /// cambia, aunque el usuario modifique el ajuste después).
+  final bool salioDeCaja;
+
+  /// Gasto generado en la caja al prestar (si salió de la caja).
+  final int? movimientoId;
+  final DateTime creadoEn;
+  const Prestamo({
     required this.id,
     required this.clienteId,
-    required this.tipo,
     required this.montoCentavos,
+    required this.fechaPrestamo,
+    this.fechaVencimiento,
     this.nota,
-    required this.fecha,
+    required this.salioDeCaja,
+    this.movimientoId,
+    required this.creadoEn,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['cliente_id'] = Variable<int>(clienteId);
-    {
-      map['tipo'] = Variable<String>(
-        $MovimientosFiadoTable.$convertertipo.toSql(tipo),
-      );
-    }
     map['monto_centavos'] = Variable<int>(montoCentavos);
+    map['fecha_prestamo'] = Variable<DateTime>(fechaPrestamo);
+    if (!nullToAbsent || fechaVencimiento != null) {
+      map['fecha_vencimiento'] = Variable<DateTime>(fechaVencimiento);
+    }
     if (!nullToAbsent || nota != null) {
       map['nota'] = Variable<String>(nota);
     }
-    map['fecha'] = Variable<DateTime>(fecha);
+    map['salio_de_caja'] = Variable<bool>(salioDeCaja);
+    if (!nullToAbsent || movimientoId != null) {
+      map['movimiento_id'] = Variable<int>(movimientoId);
+    }
+    map['creado_en'] = Variable<DateTime>(creadoEn);
     return map;
   }
 
-  MovimientosFiadoCompanion toCompanion(bool nullToAbsent) {
-    return MovimientosFiadoCompanion(
+  PrestamosCompanion toCompanion(bool nullToAbsent) {
+    return PrestamosCompanion(
       id: Value(id),
       clienteId: Value(clienteId),
-      tipo: Value(tipo),
       montoCentavos: Value(montoCentavos),
+      fechaPrestamo: Value(fechaPrestamo),
+      fechaVencimiento: fechaVencimiento == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fechaVencimiento),
       nota: nota == null && nullToAbsent ? const Value.absent() : Value(nota),
-      fecha: Value(fecha),
+      salioDeCaja: Value(salioDeCaja),
+      movimientoId: movimientoId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(movimientoId),
+      creadoEn: Value(creadoEn),
     );
   }
 
-  factory MovimientoFiado.fromJson(
+  factory Prestamo.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return MovimientoFiado(
+    return Prestamo(
       id: serializer.fromJson<int>(json['id']),
       clienteId: serializer.fromJson<int>(json['clienteId']),
-      tipo: $MovimientosFiadoTable.$convertertipo.fromJson(
-        serializer.fromJson<String>(json['tipo']),
-      ),
       montoCentavos: serializer.fromJson<int>(json['montoCentavos']),
+      fechaPrestamo: serializer.fromJson<DateTime>(json['fechaPrestamo']),
+      fechaVencimiento: serializer.fromJson<DateTime?>(
+        json['fechaVencimiento'],
+      ),
       nota: serializer.fromJson<String?>(json['nota']),
-      fecha: serializer.fromJson<DateTime>(json['fecha']),
+      salioDeCaja: serializer.fromJson<bool>(json['salioDeCaja']),
+      movimientoId: serializer.fromJson<int?>(json['movimientoId']),
+      creadoEn: serializer.fromJson<DateTime>(json['creadoEn']),
     );
   }
   @override
@@ -1856,130 +1975,185 @@ class MovimientoFiado extends DataClass implements Insertable<MovimientoFiado> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'clienteId': serializer.toJson<int>(clienteId),
-      'tipo': serializer.toJson<String>(
-        $MovimientosFiadoTable.$convertertipo.toJson(tipo),
-      ),
       'montoCentavos': serializer.toJson<int>(montoCentavos),
+      'fechaPrestamo': serializer.toJson<DateTime>(fechaPrestamo),
+      'fechaVencimiento': serializer.toJson<DateTime?>(fechaVencimiento),
       'nota': serializer.toJson<String?>(nota),
-      'fecha': serializer.toJson<DateTime>(fecha),
+      'salioDeCaja': serializer.toJson<bool>(salioDeCaja),
+      'movimientoId': serializer.toJson<int?>(movimientoId),
+      'creadoEn': serializer.toJson<DateTime>(creadoEn),
     };
   }
 
-  MovimientoFiado copyWith({
+  Prestamo copyWith({
     int? id,
     int? clienteId,
-    TipoFiado? tipo,
     int? montoCentavos,
+    DateTime? fechaPrestamo,
+    Value<DateTime?> fechaVencimiento = const Value.absent(),
     Value<String?> nota = const Value.absent(),
-    DateTime? fecha,
-  }) => MovimientoFiado(
+    bool? salioDeCaja,
+    Value<int?> movimientoId = const Value.absent(),
+    DateTime? creadoEn,
+  }) => Prestamo(
     id: id ?? this.id,
     clienteId: clienteId ?? this.clienteId,
-    tipo: tipo ?? this.tipo,
     montoCentavos: montoCentavos ?? this.montoCentavos,
+    fechaPrestamo: fechaPrestamo ?? this.fechaPrestamo,
+    fechaVencimiento: fechaVencimiento.present
+        ? fechaVencimiento.value
+        : this.fechaVencimiento,
     nota: nota.present ? nota.value : this.nota,
-    fecha: fecha ?? this.fecha,
+    salioDeCaja: salioDeCaja ?? this.salioDeCaja,
+    movimientoId: movimientoId.present ? movimientoId.value : this.movimientoId,
+    creadoEn: creadoEn ?? this.creadoEn,
   );
-  MovimientoFiado copyWithCompanion(MovimientosFiadoCompanion data) {
-    return MovimientoFiado(
+  Prestamo copyWithCompanion(PrestamosCompanion data) {
+    return Prestamo(
       id: data.id.present ? data.id.value : this.id,
       clienteId: data.clienteId.present ? data.clienteId.value : this.clienteId,
-      tipo: data.tipo.present ? data.tipo.value : this.tipo,
       montoCentavos: data.montoCentavos.present
           ? data.montoCentavos.value
           : this.montoCentavos,
+      fechaPrestamo: data.fechaPrestamo.present
+          ? data.fechaPrestamo.value
+          : this.fechaPrestamo,
+      fechaVencimiento: data.fechaVencimiento.present
+          ? data.fechaVencimiento.value
+          : this.fechaVencimiento,
       nota: data.nota.present ? data.nota.value : this.nota,
-      fecha: data.fecha.present ? data.fecha.value : this.fecha,
+      salioDeCaja: data.salioDeCaja.present
+          ? data.salioDeCaja.value
+          : this.salioDeCaja,
+      movimientoId: data.movimientoId.present
+          ? data.movimientoId.value
+          : this.movimientoId,
+      creadoEn: data.creadoEn.present ? data.creadoEn.value : this.creadoEn,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('MovimientoFiado(')
+    return (StringBuffer('Prestamo(')
           ..write('id: $id, ')
           ..write('clienteId: $clienteId, ')
-          ..write('tipo: $tipo, ')
           ..write('montoCentavos: $montoCentavos, ')
+          ..write('fechaPrestamo: $fechaPrestamo, ')
+          ..write('fechaVencimiento: $fechaVencimiento, ')
           ..write('nota: $nota, ')
-          ..write('fecha: $fecha')
+          ..write('salioDeCaja: $salioDeCaja, ')
+          ..write('movimientoId: $movimientoId, ')
+          ..write('creadoEn: $creadoEn')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, clienteId, tipo, montoCentavos, nota, fecha);
+  int get hashCode => Object.hash(
+    id,
+    clienteId,
+    montoCentavos,
+    fechaPrestamo,
+    fechaVencimiento,
+    nota,
+    salioDeCaja,
+    movimientoId,
+    creadoEn,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MovimientoFiado &&
+      (other is Prestamo &&
           other.id == this.id &&
           other.clienteId == this.clienteId &&
-          other.tipo == this.tipo &&
           other.montoCentavos == this.montoCentavos &&
+          other.fechaPrestamo == this.fechaPrestamo &&
+          other.fechaVencimiento == this.fechaVencimiento &&
           other.nota == this.nota &&
-          other.fecha == this.fecha);
+          other.salioDeCaja == this.salioDeCaja &&
+          other.movimientoId == this.movimientoId &&
+          other.creadoEn == this.creadoEn);
 }
 
-class MovimientosFiadoCompanion extends UpdateCompanion<MovimientoFiado> {
+class PrestamosCompanion extends UpdateCompanion<Prestamo> {
   final Value<int> id;
   final Value<int> clienteId;
-  final Value<TipoFiado> tipo;
   final Value<int> montoCentavos;
+  final Value<DateTime> fechaPrestamo;
+  final Value<DateTime?> fechaVencimiento;
   final Value<String?> nota;
-  final Value<DateTime> fecha;
-  const MovimientosFiadoCompanion({
+  final Value<bool> salioDeCaja;
+  final Value<int?> movimientoId;
+  final Value<DateTime> creadoEn;
+  const PrestamosCompanion({
     this.id = const Value.absent(),
     this.clienteId = const Value.absent(),
-    this.tipo = const Value.absent(),
     this.montoCentavos = const Value.absent(),
+    this.fechaPrestamo = const Value.absent(),
+    this.fechaVencimiento = const Value.absent(),
     this.nota = const Value.absent(),
-    this.fecha = const Value.absent(),
+    this.salioDeCaja = const Value.absent(),
+    this.movimientoId = const Value.absent(),
+    this.creadoEn = const Value.absent(),
   });
-  MovimientosFiadoCompanion.insert({
+  PrestamosCompanion.insert({
     this.id = const Value.absent(),
     required int clienteId,
-    required TipoFiado tipo,
     required int montoCentavos,
+    required DateTime fechaPrestamo,
+    this.fechaVencimiento = const Value.absent(),
     this.nota = const Value.absent(),
-    required DateTime fecha,
+    this.salioDeCaja = const Value.absent(),
+    this.movimientoId = const Value.absent(),
+    this.creadoEn = const Value.absent(),
   }) : clienteId = Value(clienteId),
-       tipo = Value(tipo),
        montoCentavos = Value(montoCentavos),
-       fecha = Value(fecha);
-  static Insertable<MovimientoFiado> custom({
+       fechaPrestamo = Value(fechaPrestamo);
+  static Insertable<Prestamo> custom({
     Expression<int>? id,
     Expression<int>? clienteId,
-    Expression<String>? tipo,
     Expression<int>? montoCentavos,
+    Expression<DateTime>? fechaPrestamo,
+    Expression<DateTime>? fechaVencimiento,
     Expression<String>? nota,
-    Expression<DateTime>? fecha,
+    Expression<bool>? salioDeCaja,
+    Expression<int>? movimientoId,
+    Expression<DateTime>? creadoEn,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (clienteId != null) 'cliente_id': clienteId,
-      if (tipo != null) 'tipo': tipo,
       if (montoCentavos != null) 'monto_centavos': montoCentavos,
+      if (fechaPrestamo != null) 'fecha_prestamo': fechaPrestamo,
+      if (fechaVencimiento != null) 'fecha_vencimiento': fechaVencimiento,
       if (nota != null) 'nota': nota,
-      if (fecha != null) 'fecha': fecha,
+      if (salioDeCaja != null) 'salio_de_caja': salioDeCaja,
+      if (movimientoId != null) 'movimiento_id': movimientoId,
+      if (creadoEn != null) 'creado_en': creadoEn,
     });
   }
 
-  MovimientosFiadoCompanion copyWith({
+  PrestamosCompanion copyWith({
     Value<int>? id,
     Value<int>? clienteId,
-    Value<TipoFiado>? tipo,
     Value<int>? montoCentavos,
+    Value<DateTime>? fechaPrestamo,
+    Value<DateTime?>? fechaVencimiento,
     Value<String?>? nota,
-    Value<DateTime>? fecha,
+    Value<bool>? salioDeCaja,
+    Value<int?>? movimientoId,
+    Value<DateTime>? creadoEn,
   }) {
-    return MovimientosFiadoCompanion(
+    return PrestamosCompanion(
       id: id ?? this.id,
       clienteId: clienteId ?? this.clienteId,
-      tipo: tipo ?? this.tipo,
       montoCentavos: montoCentavos ?? this.montoCentavos,
+      fechaPrestamo: fechaPrestamo ?? this.fechaPrestamo,
+      fechaVencimiento: fechaVencimiento ?? this.fechaVencimiento,
       nota: nota ?? this.nota,
-      fecha: fecha ?? this.fecha,
+      salioDeCaja: salioDeCaja ?? this.salioDeCaja,
+      movimientoId: movimientoId ?? this.movimientoId,
+      creadoEn: creadoEn ?? this.creadoEn,
     );
   }
 
@@ -1992,32 +2166,459 @@ class MovimientosFiadoCompanion extends UpdateCompanion<MovimientoFiado> {
     if (clienteId.present) {
       map['cliente_id'] = Variable<int>(clienteId.value);
     }
-    if (tipo.present) {
-      map['tipo'] = Variable<String>(
-        $MovimientosFiadoTable.$convertertipo.toSql(tipo.value),
-      );
-    }
     if (montoCentavos.present) {
       map['monto_centavos'] = Variable<int>(montoCentavos.value);
+    }
+    if (fechaPrestamo.present) {
+      map['fecha_prestamo'] = Variable<DateTime>(fechaPrestamo.value);
+    }
+    if (fechaVencimiento.present) {
+      map['fecha_vencimiento'] = Variable<DateTime>(fechaVencimiento.value);
     }
     if (nota.present) {
       map['nota'] = Variable<String>(nota.value);
     }
-    if (fecha.present) {
-      map['fecha'] = Variable<DateTime>(fecha.value);
+    if (salioDeCaja.present) {
+      map['salio_de_caja'] = Variable<bool>(salioDeCaja.value);
+    }
+    if (movimientoId.present) {
+      map['movimiento_id'] = Variable<int>(movimientoId.value);
+    }
+    if (creadoEn.present) {
+      map['creado_en'] = Variable<DateTime>(creadoEn.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('MovimientosFiadoCompanion(')
+    return (StringBuffer('PrestamosCompanion(')
           ..write('id: $id, ')
           ..write('clienteId: $clienteId, ')
-          ..write('tipo: $tipo, ')
           ..write('montoCentavos: $montoCentavos, ')
+          ..write('fechaPrestamo: $fechaPrestamo, ')
+          ..write('fechaVencimiento: $fechaVencimiento, ')
           ..write('nota: $nota, ')
-          ..write('fecha: $fecha')
+          ..write('salioDeCaja: $salioDeCaja, ')
+          ..write('movimientoId: $movimientoId, ')
+          ..write('creadoEn: $creadoEn')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AbonosPrestamoTable extends AbonosPrestamo
+    with TableInfo<$AbonosPrestamoTable, AbonoPrestamo> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AbonosPrestamoTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _prestamoIdMeta = const VerificationMeta(
+    'prestamoId',
+  );
+  @override
+  late final GeneratedColumn<int> prestamoId = GeneratedColumn<int>(
+    'prestamo_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES prestamos (id)',
+    ),
+  );
+  static const VerificationMeta _montoCentavosMeta = const VerificationMeta(
+    'montoCentavos',
+  );
+  @override
+  late final GeneratedColumn<int> montoCentavos = GeneratedColumn<int>(
+    'monto_centavos',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(montoCentavos).isBiggerThanValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fechaMeta = const VerificationMeta('fecha');
+  @override
+  late final GeneratedColumn<DateTime> fecha = GeneratedColumn<DateTime>(
+    'fecha',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notaMeta = const VerificationMeta('nota');
+  @override
+  late final GeneratedColumn<String> nota = GeneratedColumn<String>(
+    'nota',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _movimientoIdMeta = const VerificationMeta(
+    'movimientoId',
+  );
+  @override
+  late final GeneratedColumn<int> movimientoId = GeneratedColumn<int>(
+    'movimiento_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES movimientos (id) ON DELETE SET NULL',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    prestamoId,
+    montoCentavos,
+    fecha,
+    nota,
+    movimientoId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'abonos_prestamo';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AbonoPrestamo> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('prestamo_id')) {
+      context.handle(
+        _prestamoIdMeta,
+        prestamoId.isAcceptableOrUnknown(data['prestamo_id']!, _prestamoIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_prestamoIdMeta);
+    }
+    if (data.containsKey('monto_centavos')) {
+      context.handle(
+        _montoCentavosMeta,
+        montoCentavos.isAcceptableOrUnknown(
+          data['monto_centavos']!,
+          _montoCentavosMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_montoCentavosMeta);
+    }
+    if (data.containsKey('fecha')) {
+      context.handle(
+        _fechaMeta,
+        fecha.isAcceptableOrUnknown(data['fecha']!, _fechaMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fechaMeta);
+    }
+    if (data.containsKey('nota')) {
+      context.handle(
+        _notaMeta,
+        nota.isAcceptableOrUnknown(data['nota']!, _notaMeta),
+      );
+    }
+    if (data.containsKey('movimiento_id')) {
+      context.handle(
+        _movimientoIdMeta,
+        movimientoId.isAcceptableOrUnknown(
+          data['movimiento_id']!,
+          _movimientoIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AbonoPrestamo map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AbonoPrestamo(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      prestamoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prestamo_id'],
+      )!,
+      montoCentavos: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}monto_centavos'],
+      )!,
+      fecha: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fecha'],
+      )!,
+      nota: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}nota'],
+      ),
+      movimientoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}movimiento_id'],
+      ),
+    );
+  }
+
+  @override
+  $AbonosPrestamoTable createAlias(String alias) {
+    return $AbonosPrestamoTable(attachedDatabase, alias);
+  }
+}
+
+class AbonoPrestamo extends DataClass implements Insertable<AbonoPrestamo> {
+  final int id;
+  final int prestamoId;
+  final int montoCentavos;
+  final DateTime fecha;
+  final String? nota;
+
+  /// Ingreso generado en la caja por este pago (si el préstamo salió de ella).
+  final int? movimientoId;
+  const AbonoPrestamo({
+    required this.id,
+    required this.prestamoId,
+    required this.montoCentavos,
+    required this.fecha,
+    this.nota,
+    this.movimientoId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['prestamo_id'] = Variable<int>(prestamoId);
+    map['monto_centavos'] = Variable<int>(montoCentavos);
+    map['fecha'] = Variable<DateTime>(fecha);
+    if (!nullToAbsent || nota != null) {
+      map['nota'] = Variable<String>(nota);
+    }
+    if (!nullToAbsent || movimientoId != null) {
+      map['movimiento_id'] = Variable<int>(movimientoId);
+    }
+    return map;
+  }
+
+  AbonosPrestamoCompanion toCompanion(bool nullToAbsent) {
+    return AbonosPrestamoCompanion(
+      id: Value(id),
+      prestamoId: Value(prestamoId),
+      montoCentavos: Value(montoCentavos),
+      fecha: Value(fecha),
+      nota: nota == null && nullToAbsent ? const Value.absent() : Value(nota),
+      movimientoId: movimientoId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(movimientoId),
+    );
+  }
+
+  factory AbonoPrestamo.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AbonoPrestamo(
+      id: serializer.fromJson<int>(json['id']),
+      prestamoId: serializer.fromJson<int>(json['prestamoId']),
+      montoCentavos: serializer.fromJson<int>(json['montoCentavos']),
+      fecha: serializer.fromJson<DateTime>(json['fecha']),
+      nota: serializer.fromJson<String?>(json['nota']),
+      movimientoId: serializer.fromJson<int?>(json['movimientoId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'prestamoId': serializer.toJson<int>(prestamoId),
+      'montoCentavos': serializer.toJson<int>(montoCentavos),
+      'fecha': serializer.toJson<DateTime>(fecha),
+      'nota': serializer.toJson<String?>(nota),
+      'movimientoId': serializer.toJson<int?>(movimientoId),
+    };
+  }
+
+  AbonoPrestamo copyWith({
+    int? id,
+    int? prestamoId,
+    int? montoCentavos,
+    DateTime? fecha,
+    Value<String?> nota = const Value.absent(),
+    Value<int?> movimientoId = const Value.absent(),
+  }) => AbonoPrestamo(
+    id: id ?? this.id,
+    prestamoId: prestamoId ?? this.prestamoId,
+    montoCentavos: montoCentavos ?? this.montoCentavos,
+    fecha: fecha ?? this.fecha,
+    nota: nota.present ? nota.value : this.nota,
+    movimientoId: movimientoId.present ? movimientoId.value : this.movimientoId,
+  );
+  AbonoPrestamo copyWithCompanion(AbonosPrestamoCompanion data) {
+    return AbonoPrestamo(
+      id: data.id.present ? data.id.value : this.id,
+      prestamoId: data.prestamoId.present
+          ? data.prestamoId.value
+          : this.prestamoId,
+      montoCentavos: data.montoCentavos.present
+          ? data.montoCentavos.value
+          : this.montoCentavos,
+      fecha: data.fecha.present ? data.fecha.value : this.fecha,
+      nota: data.nota.present ? data.nota.value : this.nota,
+      movimientoId: data.movimientoId.present
+          ? data.movimientoId.value
+          : this.movimientoId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AbonoPrestamo(')
+          ..write('id: $id, ')
+          ..write('prestamoId: $prestamoId, ')
+          ..write('montoCentavos: $montoCentavos, ')
+          ..write('fecha: $fecha, ')
+          ..write('nota: $nota, ')
+          ..write('movimientoId: $movimientoId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, prestamoId, montoCentavos, fecha, nota, movimientoId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AbonoPrestamo &&
+          other.id == this.id &&
+          other.prestamoId == this.prestamoId &&
+          other.montoCentavos == this.montoCentavos &&
+          other.fecha == this.fecha &&
+          other.nota == this.nota &&
+          other.movimientoId == this.movimientoId);
+}
+
+class AbonosPrestamoCompanion extends UpdateCompanion<AbonoPrestamo> {
+  final Value<int> id;
+  final Value<int> prestamoId;
+  final Value<int> montoCentavos;
+  final Value<DateTime> fecha;
+  final Value<String?> nota;
+  final Value<int?> movimientoId;
+  const AbonosPrestamoCompanion({
+    this.id = const Value.absent(),
+    this.prestamoId = const Value.absent(),
+    this.montoCentavos = const Value.absent(),
+    this.fecha = const Value.absent(),
+    this.nota = const Value.absent(),
+    this.movimientoId = const Value.absent(),
+  });
+  AbonosPrestamoCompanion.insert({
+    this.id = const Value.absent(),
+    required int prestamoId,
+    required int montoCentavos,
+    required DateTime fecha,
+    this.nota = const Value.absent(),
+    this.movimientoId = const Value.absent(),
+  }) : prestamoId = Value(prestamoId),
+       montoCentavos = Value(montoCentavos),
+       fecha = Value(fecha);
+  static Insertable<AbonoPrestamo> custom({
+    Expression<int>? id,
+    Expression<int>? prestamoId,
+    Expression<int>? montoCentavos,
+    Expression<DateTime>? fecha,
+    Expression<String>? nota,
+    Expression<int>? movimientoId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (prestamoId != null) 'prestamo_id': prestamoId,
+      if (montoCentavos != null) 'monto_centavos': montoCentavos,
+      if (fecha != null) 'fecha': fecha,
+      if (nota != null) 'nota': nota,
+      if (movimientoId != null) 'movimiento_id': movimientoId,
+    });
+  }
+
+  AbonosPrestamoCompanion copyWith({
+    Value<int>? id,
+    Value<int>? prestamoId,
+    Value<int>? montoCentavos,
+    Value<DateTime>? fecha,
+    Value<String?>? nota,
+    Value<int?>? movimientoId,
+  }) {
+    return AbonosPrestamoCompanion(
+      id: id ?? this.id,
+      prestamoId: prestamoId ?? this.prestamoId,
+      montoCentavos: montoCentavos ?? this.montoCentavos,
+      fecha: fecha ?? this.fecha,
+      nota: nota ?? this.nota,
+      movimientoId: movimientoId ?? this.movimientoId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (prestamoId.present) {
+      map['prestamo_id'] = Variable<int>(prestamoId.value);
+    }
+    if (montoCentavos.present) {
+      map['monto_centavos'] = Variable<int>(montoCentavos.value);
+    }
+    if (fecha.present) {
+      map['fecha'] = Variable<DateTime>(fecha.value);
+    }
+    if (nota.present) {
+      map['nota'] = Variable<String>(nota.value);
+    }
+    if (movimientoId.present) {
+      map['movimiento_id'] = Variable<int>(movimientoId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AbonosPrestamoCompanion(')
+          ..write('id: $id, ')
+          ..write('prestamoId: $prestamoId, ')
+          ..write('montoCentavos: $montoCentavos, ')
+          ..write('fecha: $fecha, ')
+          ..write('nota: $nota, ')
+          ..write('movimientoId: $movimientoId')
           ..write(')'))
         .toString();
   }
@@ -3088,18 +3689,21 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CategoriasTable categorias = $CategoriasTable(this);
   late final $MovimientosTable movimientos = $MovimientosTable(this);
   late final $ClientesTable clientes = $ClientesTable(this);
-  late final $MovimientosFiadoTable movimientosFiado = $MovimientosFiadoTable(
-    this,
-  );
+  late final $PrestamosTable prestamos = $PrestamosTable(this);
+  late final $AbonosPrestamoTable abonosPrestamo = $AbonosPrestamoTable(this);
   late final $EmpleadosTable empleados = $EmpleadosTable(this);
   late final $PagosEmpleadoTable pagosEmpleado = $PagosEmpleadoTable(this);
   late final Index idxMovimientosFecha = Index(
     'idx_movimientos_fecha',
     'CREATE INDEX idx_movimientos_fecha ON movimientos (fecha)',
   );
-  late final Index idxFiadoCliente = Index(
-    'idx_fiado_cliente',
-    'CREATE INDEX idx_fiado_cliente ON movimientos_fiado (cliente_id)',
+  late final Index idxPrestamosCliente = Index(
+    'idx_prestamos_cliente',
+    'CREATE INDEX idx_prestamos_cliente ON prestamos (cliente_id)',
+  );
+  late final Index idxAbonosPrestamo = Index(
+    'idx_abonos_prestamo',
+    'CREATE INDEX idx_abonos_prestamo ON abonos_prestamo (prestamo_id)',
   );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -3110,11 +3714,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     categorias,
     movimientos,
     clientes,
-    movimientosFiado,
+    prestamos,
+    abonosPrestamo,
     empleados,
     pagosEmpleado,
     idxMovimientosFecha,
-    idxFiadoCliente,
+    idxPrestamosCliente,
+    idxAbonosPrestamo,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3124,6 +3730,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('movimientos', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'movimientos',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('prestamos', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'movimientos',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('abonos_prestamo', kind: UpdateKind.update)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -3676,6 +4296,42 @@ final class $$MovimientosTableReferences
     );
   }
 
+  static MultiTypedResultKey<$PrestamosTable, List<Prestamo>>
+  _prestamosRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.prestamos,
+    aliasName: 'movimientos__id__prestamos__movimiento_id',
+  );
+
+  $$PrestamosTableProcessedTableManager get prestamosRefs {
+    final manager = $$PrestamosTableTableManager(
+      $_db,
+      $_db.prestamos,
+    ).filter((f) => f.movimientoId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_prestamosRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$AbonosPrestamoTable, List<AbonoPrestamo>>
+  _abonosPrestamoRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.abonosPrestamo,
+    aliasName: 'movimientos__id__abonos_prestamo__movimiento_id',
+  );
+
+  $$AbonosPrestamoTableProcessedTableManager get abonosPrestamoRefs {
+    final manager = $$AbonosPrestamoTableTableManager(
+      $_db,
+      $_db.abonosPrestamo,
+    ).filter((f) => f.movimientoId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_abonosPrestamoRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$PagosEmpleadoTable, List<PagoEmpleado>>
   _pagosEmpleadoRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.pagosEmpleado,
@@ -3762,6 +4418,56 @@ class $$MovimientosTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> prestamosRefs(
+    Expression<bool> Function($$PrestamosTableFilterComposer f) f,
+  ) {
+    final $$PrestamosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.prestamos,
+      getReferencedColumn: (t) => t.movimientoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PrestamosTableFilterComposer(
+            $db: $db,
+            $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> abonosPrestamoRefs(
+    Expression<bool> Function($$AbonosPrestamoTableFilterComposer f) f,
+  ) {
+    final $$AbonosPrestamoTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.abonosPrestamo,
+      getReferencedColumn: (t) => t.movimientoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AbonosPrestamoTableFilterComposer(
+            $db: $db,
+            $table: $db.abonosPrestamo,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 
   Expression<bool> pagosEmpleadoRefs(
@@ -3913,6 +4619,56 @@ class $$MovimientosTableAnnotationComposer
     return composer;
   }
 
+  Expression<T> prestamosRefs<T extends Object>(
+    Expression<T> Function($$PrestamosTableAnnotationComposer a) f,
+  ) {
+    final $$PrestamosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.prestamos,
+      getReferencedColumn: (t) => t.movimientoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PrestamosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> abonosPrestamoRefs<T extends Object>(
+    Expression<T> Function($$AbonosPrestamoTableAnnotationComposer a) f,
+  ) {
+    final $$AbonosPrestamoTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.abonosPrestamo,
+      getReferencedColumn: (t) => t.movimientoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AbonosPrestamoTableAnnotationComposer(
+            $db: $db,
+            $table: $db.abonosPrestamo,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> pagosEmpleadoRefs<T extends Object>(
     Expression<T> Function($$PagosEmpleadoTableAnnotationComposer a) f,
   ) {
@@ -3952,7 +4708,12 @@ class $$MovimientosTableTableManager
           $$MovimientosTableUpdateCompanionBuilder,
           (Movimiento, $$MovimientosTableReferences),
           Movimiento,
-          PrefetchHooks Function({bool categoriaId, bool pagosEmpleadoRefs})
+          PrefetchHooks Function({
+            bool categoriaId,
+            bool prestamosRefs,
+            bool abonosPrestamoRefs,
+            bool pagosEmpleadoRefs,
+          })
         > {
   $$MovimientosTableTableManager(_$AppDatabase db, $MovimientosTable table)
     : super(
@@ -4014,10 +4775,17 @@ class $$MovimientosTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({categoriaId = false, pagosEmpleadoRefs = false}) {
+              ({
+                categoriaId = false,
+                prestamosRefs = false,
+                abonosPrestamoRefs = false,
+                pagosEmpleadoRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (prestamosRefs) db.prestamos,
+                    if (abonosPrestamoRefs) db.abonosPrestamo,
                     if (pagosEmpleadoRefs) db.pagosEmpleado,
                   ],
                   addJoins:
@@ -4052,6 +4820,48 @@ class $$MovimientosTableTableManager
                       },
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (prestamosRefs)
+                        await $_getPrefetchedData<
+                          Movimiento,
+                          $MovimientosTable,
+                          Prestamo
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MovimientosTableReferences
+                              ._prestamosRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MovimientosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).prestamosRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.movimientoId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (abonosPrestamoRefs)
+                        await $_getPrefetchedData<
+                          Movimiento,
+                          $MovimientosTable,
+                          AbonoPrestamo
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MovimientosTableReferences
+                              ._abonosPrestamoRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MovimientosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).abonosPrestamoRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.movimientoId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (pagosEmpleadoRefs)
                         await $_getPrefetchedData<
                           Movimiento,
@@ -4093,7 +4903,12 @@ typedef $$MovimientosTableProcessedTableManager =
       $$MovimientosTableUpdateCompanionBuilder,
       (Movimiento, $$MovimientosTableReferences),
       Movimiento,
-      PrefetchHooks Function({bool categoriaId, bool pagosEmpleadoRefs})
+      PrefetchHooks Function({
+        bool categoriaId,
+        bool prestamosRefs,
+        bool abonosPrestamoRefs,
+        bool pagosEmpleadoRefs,
+      })
     >;
 typedef $$ClientesTableCreateCompanionBuilder = ClientesCompanion Function({
   Value<int> id,
@@ -4114,21 +4929,19 @@ final class $$ClientesTableReferences
     extends BaseReferences<_$AppDatabase, $ClientesTable, Cliente> {
   $$ClientesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$MovimientosFiadoTable, List<MovimientoFiado>>
-  _movimientosFiadoRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.movimientosFiado,
-    aliasName: 'clientes__id__movimientos_fiado__cliente_id',
+  static MultiTypedResultKey<$PrestamosTable, List<Prestamo>>
+  _prestamosRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.prestamos,
+    aliasName: 'clientes__id__prestamos__cliente_id',
   );
 
-  $$MovimientosFiadoTableProcessedTableManager get movimientosFiadoRefs {
-    final manager = $$MovimientosFiadoTableTableManager(
+  $$PrestamosTableProcessedTableManager get prestamosRefs {
+    final manager = $$PrestamosTableTableManager(
       $_db,
-      $_db.movimientosFiado,
+      $_db.prestamos,
     ).filter((f) => f.clienteId.id.sqlEquals($_itemColumn<int>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(
-      _movimientosFiadoRefsTable($_db),
-    );
+    final cache = $_typedResult.readTableOrNull(_prestamosRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -4169,22 +4982,22 @@ class $$ClientesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  Expression<bool> movimientosFiadoRefs(
-    Expression<bool> Function($$MovimientosFiadoTableFilterComposer f) f,
+  Expression<bool> prestamosRefs(
+    Expression<bool> Function($$PrestamosTableFilterComposer f) f,
   ) {
-    final $$MovimientosFiadoTableFilterComposer composer = $composerBuilder(
+    final $$PrestamosTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.movimientosFiado,
+      referencedTable: $db.prestamos,
       getReferencedColumn: (t) => t.clienteId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$MovimientosFiadoTableFilterComposer(
+          }) => $$PrestamosTableFilterComposer(
             $db: $db,
-            $table: $db.movimientosFiado,
+            $table: $db.prestamos,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4254,22 +5067,22 @@ class $$ClientesTableAnnotationComposer
   GeneratedColumn<DateTime> get creadoEn =>
       $composableBuilder(column: $table.creadoEn, builder: (column) => column);
 
-  Expression<T> movimientosFiadoRefs<T extends Object>(
-    Expression<T> Function($$MovimientosFiadoTableAnnotationComposer a) f,
+  Expression<T> prestamosRefs<T extends Object>(
+    Expression<T> Function($$PrestamosTableAnnotationComposer a) f,
   ) {
-    final $$MovimientosFiadoTableAnnotationComposer composer = $composerBuilder(
+    final $$PrestamosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.movimientosFiado,
+      referencedTable: $db.prestamos,
       getReferencedColumn: (t) => t.clienteId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$MovimientosFiadoTableAnnotationComposer(
+          }) => $$PrestamosTableAnnotationComposer(
             $db: $db,
-            $table: $db.movimientosFiado,
+            $table: $db.prestamos,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4293,7 +5106,7 @@ class $$ClientesTableTableManager
           $$ClientesTableUpdateCompanionBuilder,
           (Cliente, $$ClientesTableReferences),
           Cliente,
-          PrefetchHooks Function({bool movimientosFiadoRefs})
+          PrefetchHooks Function({bool prestamosRefs})
         > {
   $$ClientesTableTableManager(_$AppDatabase db, $ClientesTable table)
     : super(
@@ -4342,29 +5155,27 @@ class $$ClientesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({movimientosFiadoRefs = false}) {
+          prefetchHooksCallback: ({prestamosRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [
-                if (movimientosFiadoRefs) db.movimientosFiado,
-              ],
+              explicitlyWatchedTables: [if (prestamosRefs) db.prestamos],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
-                  if (movimientosFiadoRefs)
+                  if (prestamosRefs)
                     await $_getPrefetchedData<
                       Cliente,
                       $ClientesTable,
-                      MovimientoFiado
+                      Prestamo
                     >(
                       currentTable: table,
                       referencedTable: $$ClientesTableReferences
-                          ._movimientosFiadoRefsTable(db),
+                          ._prestamosRefsTable(db),
                       managerFromTypedResult: (p0) => $$ClientesTableReferences(
                         db,
                         table,
                         p0,
-                      ).movimientosFiadoRefs,
+                      ).prestamosRefs,
                       referencedItemsForCurrentItem: (item, referencedItems) =>
                           referencedItems.where((e) => e.clienteId == item.id),
                       typedResults: items,
@@ -4389,38 +5200,37 @@ typedef $$ClientesTableProcessedTableManager =
       $$ClientesTableUpdateCompanionBuilder,
       (Cliente, $$ClientesTableReferences),
       Cliente,
-      PrefetchHooks Function({bool movimientosFiadoRefs})
+      PrefetchHooks Function({bool prestamosRefs})
     >;
-typedef $$MovimientosFiadoTableCreateCompanionBuilder =
-    MovimientosFiadoCompanion Function({
-      Value<int> id,
-      required int clienteId,
-      required TipoFiado tipo,
-      required int montoCentavos,
-      Value<String?> nota,
-      required DateTime fecha,
-    });
-typedef $$MovimientosFiadoTableUpdateCompanionBuilder =
-    MovimientosFiadoCompanion Function({
-      Value<int> id,
-      Value<int> clienteId,
-      Value<TipoFiado> tipo,
-      Value<int> montoCentavos,
-      Value<String?> nota,
-      Value<DateTime> fecha,
-    });
+typedef $$PrestamosTableCreateCompanionBuilder = PrestamosCompanion Function({
+  Value<int> id,
+  required int clienteId,
+  required int montoCentavos,
+  required DateTime fechaPrestamo,
+  Value<DateTime?> fechaVencimiento,
+  Value<String?> nota,
+  Value<bool> salioDeCaja,
+  Value<int?> movimientoId,
+  Value<DateTime> creadoEn,
+});
+typedef $$PrestamosTableUpdateCompanionBuilder = PrestamosCompanion Function({
+  Value<int> id,
+  Value<int> clienteId,
+  Value<int> montoCentavos,
+  Value<DateTime> fechaPrestamo,
+  Value<DateTime?> fechaVencimiento,
+  Value<String?> nota,
+  Value<bool> salioDeCaja,
+  Value<int?> movimientoId,
+  Value<DateTime> creadoEn,
+});
 
-final class $$MovimientosFiadoTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $MovimientosFiadoTable, MovimientoFiado> {
-  $$MovimientosFiadoTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
+final class $$PrestamosTableReferences
+    extends BaseReferences<_$AppDatabase, $PrestamosTable, Prestamo> {
+  $$PrestamosTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $ClientesTable _clienteIdTable(_$AppDatabase db) =>
-      db.clientes.createAlias('movimientos_fiado__cliente_id__clientes__id');
+      db.clientes.createAlias('prestamos__cliente_id__clientes__id');
 
   $$ClientesTableProcessedTableManager get clienteId {
     final $_column = $_itemColumn<int>('cliente_id')!;
@@ -4435,11 +5245,46 @@ final class $$MovimientosFiadoTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static $MovimientosTable _movimientoIdTable(_$AppDatabase db) =>
+      db.movimientos.createAlias('prestamos__movimiento_id__movimientos__id');
+
+  $$MovimientosTableProcessedTableManager? get movimientoId {
+    final $_column = $_itemColumn<int>('movimiento_id');
+    if ($_column == null) return null;
+    final manager = $$MovimientosTableTableManager(
+      $_db,
+      $_db.movimientos,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_movimientoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$AbonosPrestamoTable, List<AbonoPrestamo>>
+  _abonosPrestamoRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.abonosPrestamo,
+    aliasName: 'prestamos__id__abonos_prestamo__prestamo_id',
+  );
+
+  $$AbonosPrestamoTableProcessedTableManager get abonosPrestamoRefs {
+    final manager = $$AbonosPrestamoTableTableManager(
+      $_db,
+      $_db.abonosPrestamo,
+    ).filter((f) => f.prestamoId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_abonosPrestamoRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
-class $$MovimientosFiadoTableFilterComposer
-    extends Composer<_$AppDatabase, $MovimientosFiadoTable> {
-  $$MovimientosFiadoTableFilterComposer({
+class $$PrestamosTableFilterComposer
+    extends Composer<_$AppDatabase, $PrestamosTable> {
+  $$PrestamosTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -4451,14 +5296,18 @@ class $$MovimientosFiadoTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<TipoFiado, TipoFiado, String> get tipo =>
-      $composableBuilder(
-        column: $table.tipo,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
-
   ColumnFilters<int> get montoCentavos => $composableBuilder(
     column: $table.montoCentavos,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fechaPrestamo => $composableBuilder(
+    column: $table.fechaPrestamo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fechaVencimiento => $composableBuilder(
+    column: $table.fechaVencimiento,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4467,8 +5316,13 @@ class $$MovimientosFiadoTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get fecha => $composableBuilder(
-    column: $table.fecha,
+  ColumnFilters<bool> get salioDeCaja => $composableBuilder(
+    column: $table.salioDeCaja,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get creadoEn => $composableBuilder(
+    column: $table.creadoEn,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4494,11 +5348,59 @@ class $$MovimientosFiadoTableFilterComposer
     );
     return composer;
   }
+
+  $$MovimientosTableFilterComposer get movimientoId {
+    final $$MovimientosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.movimientoId,
+      referencedTable: $db.movimientos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MovimientosTableFilterComposer(
+            $db: $db,
+            $table: $db.movimientos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> abonosPrestamoRefs(
+    Expression<bool> Function($$AbonosPrestamoTableFilterComposer f) f,
+  ) {
+    final $$AbonosPrestamoTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.abonosPrestamo,
+      getReferencedColumn: (t) => t.prestamoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AbonosPrestamoTableFilterComposer(
+            $db: $db,
+            $table: $db.abonosPrestamo,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
-class $$MovimientosFiadoTableOrderingComposer
-    extends Composer<_$AppDatabase, $MovimientosFiadoTable> {
-  $$MovimientosFiadoTableOrderingComposer({
+class $$PrestamosTableOrderingComposer
+    extends Composer<_$AppDatabase, $PrestamosTable> {
+  $$PrestamosTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -4510,13 +5412,18 @@ class $$MovimientosFiadoTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get tipo => $composableBuilder(
-    column: $table.tipo,
+  ColumnOrderings<int> get montoCentavos => $composableBuilder(
+    column: $table.montoCentavos,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get montoCentavos => $composableBuilder(
-    column: $table.montoCentavos,
+  ColumnOrderings<DateTime> get fechaPrestamo => $composableBuilder(
+    column: $table.fechaPrestamo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fechaVencimiento => $composableBuilder(
+    column: $table.fechaVencimiento,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4525,8 +5432,13 @@ class $$MovimientosFiadoTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get fecha => $composableBuilder(
-    column: $table.fecha,
+  ColumnOrderings<bool> get salioDeCaja => $composableBuilder(
+    column: $table.salioDeCaja,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get creadoEn => $composableBuilder(
+    column: $table.creadoEn,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4552,11 +5464,34 @@ class $$MovimientosFiadoTableOrderingComposer
     );
     return composer;
   }
+
+  $$MovimientosTableOrderingComposer get movimientoId {
+    final $$MovimientosTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.movimientoId,
+      referencedTable: $db.movimientos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MovimientosTableOrderingComposer(
+            $db: $db,
+            $table: $db.movimientos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
-class $$MovimientosFiadoTableAnnotationComposer
-    extends Composer<_$AppDatabase, $MovimientosFiadoTable> {
-  $$MovimientosFiadoTableAnnotationComposer({
+class $$PrestamosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PrestamosTable> {
+  $$PrestamosTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -4566,19 +5501,31 @@ class $$MovimientosFiadoTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<TipoFiado, String> get tipo =>
-      $composableBuilder(column: $table.tipo, builder: (column) => column);
-
   GeneratedColumn<int> get montoCentavos => $composableBuilder(
     column: $table.montoCentavos,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get fechaPrestamo => $composableBuilder(
+    column: $table.fechaPrestamo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get fechaVencimiento => $composableBuilder(
+    column: $table.fechaVencimiento,
     builder: (column) => column,
   );
 
   GeneratedColumn<String> get nota =>
       $composableBuilder(column: $table.nota, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get fecha =>
-      $composableBuilder(column: $table.fecha, builder: (column) => column);
+  GeneratedColumn<bool> get salioDeCaja => $composableBuilder(
+    column: $table.salioDeCaja,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get creadoEn =>
+      $composableBuilder(column: $table.creadoEn, builder: (column) => column);
 
   $$ClientesTableAnnotationComposer get clienteId {
     final $$ClientesTableAnnotationComposer composer = $composerBuilder(
@@ -4602,77 +5549,593 @@ class $$MovimientosFiadoTableAnnotationComposer
     );
     return composer;
   }
+
+  $$MovimientosTableAnnotationComposer get movimientoId {
+    final $$MovimientosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.movimientoId,
+      referencedTable: $db.movimientos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MovimientosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.movimientos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> abonosPrestamoRefs<T extends Object>(
+    Expression<T> Function($$AbonosPrestamoTableAnnotationComposer a) f,
+  ) {
+    final $$AbonosPrestamoTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.abonosPrestamo,
+      getReferencedColumn: (t) => t.prestamoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AbonosPrestamoTableAnnotationComposer(
+            $db: $db,
+            $table: $db.abonosPrestamo,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
-class $$MovimientosFiadoTableTableManager
+class $$PrestamosTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $MovimientosFiadoTable,
-          MovimientoFiado,
-          $$MovimientosFiadoTableFilterComposer,
-          $$MovimientosFiadoTableOrderingComposer,
-          $$MovimientosFiadoTableAnnotationComposer,
-          $$MovimientosFiadoTableCreateCompanionBuilder,
-          $$MovimientosFiadoTableUpdateCompanionBuilder,
-          (MovimientoFiado, $$MovimientosFiadoTableReferences),
-          MovimientoFiado,
-          PrefetchHooks Function({bool clienteId})
+          $PrestamosTable,
+          Prestamo,
+          $$PrestamosTableFilterComposer,
+          $$PrestamosTableOrderingComposer,
+          $$PrestamosTableAnnotationComposer,
+          $$PrestamosTableCreateCompanionBuilder,
+          $$PrestamosTableUpdateCompanionBuilder,
+          (Prestamo, $$PrestamosTableReferences),
+          Prestamo,
+          PrefetchHooks Function({
+            bool clienteId,
+            bool movimientoId,
+            bool abonosPrestamoRefs,
+          })
         > {
-  $$MovimientosFiadoTableTableManager(
-    _$AppDatabase db,
-    $MovimientosFiadoTable table,
-  ) : super(
+  $$PrestamosTableTableManager(_$AppDatabase db, $PrestamosTable table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$MovimientosFiadoTableFilterComposer($db: db, $table: table),
+              $$PrestamosTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$MovimientosFiadoTableOrderingComposer($db: db, $table: table),
+              $$PrestamosTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$MovimientosFiadoTableAnnotationComposer($db: db, $table: table),
+              $$PrestamosTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> clienteId = const Value.absent(),
-                Value<TipoFiado> tipo = const Value.absent(),
                 Value<int> montoCentavos = const Value.absent(),
+                Value<DateTime> fechaPrestamo = const Value.absent(),
+                Value<DateTime?> fechaVencimiento = const Value.absent(),
                 Value<String?> nota = const Value.absent(),
-                Value<DateTime> fecha = const Value.absent(),
-              }) => MovimientosFiadoCompanion(
+                Value<bool> salioDeCaja = const Value.absent(),
+                Value<int?> movimientoId = const Value.absent(),
+                Value<DateTime> creadoEn = const Value.absent(),
+              }) => PrestamosCompanion(
                 id: id,
                 clienteId: clienteId,
-                tipo: tipo,
                 montoCentavos: montoCentavos,
+                fechaPrestamo: fechaPrestamo,
+                fechaVencimiento: fechaVencimiento,
                 nota: nota,
-                fecha: fecha,
+                salioDeCaja: salioDeCaja,
+                movimientoId: movimientoId,
+                creadoEn: creadoEn,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required int clienteId,
-                required TipoFiado tipo,
                 required int montoCentavos,
+                required DateTime fechaPrestamo,
+                Value<DateTime?> fechaVencimiento = const Value.absent(),
                 Value<String?> nota = const Value.absent(),
-                required DateTime fecha,
-              }) => MovimientosFiadoCompanion.insert(
+                Value<bool> salioDeCaja = const Value.absent(),
+                Value<int?> movimientoId = const Value.absent(),
+                Value<DateTime> creadoEn = const Value.absent(),
+              }) => PrestamosCompanion.insert(
                 id: id,
                 clienteId: clienteId,
-                tipo: tipo,
                 montoCentavos: montoCentavos,
+                fechaPrestamo: fechaPrestamo,
+                fechaVencimiento: fechaVencimiento,
                 nota: nota,
-                fecha: fecha,
+                salioDeCaja: salioDeCaja,
+                movimientoId: movimientoId,
+                creadoEn: creadoEn,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$MovimientosFiadoTable, MovimientoFiado>(table),
-                  $$MovimientosFiadoTableReferences(db, table, e),
+                  e.readTable<$PrestamosTable, Prestamo>(table),
+                  $$PrestamosTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({clienteId = false}) {
+          prefetchHooksCallback:
+              ({
+                clienteId = false,
+                movimientoId = false,
+                abonosPrestamoRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (abonosPrestamoRefs) db.abonosPrestamo,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (clienteId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.clienteId,
+                            referencedTable: $$PrestamosTableReferences
+                                ._clienteIdTable(db),
+                            referencedColumn: $$PrestamosTableReferences
+                                ._clienteIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (movimientoId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.movimientoId,
+                            referencedTable: $$PrestamosTableReferences
+                                ._movimientoIdTable(db),
+                            referencedColumn: $$PrestamosTableReferences
+                                ._movimientoIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (abonosPrestamoRefs)
+                        await $_getPrefetchedData<
+                          Prestamo,
+                          $PrestamosTable,
+                          AbonoPrestamo
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PrestamosTableReferences
+                              ._abonosPrestamoRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PrestamosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).abonosPrestamoRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.prestamoId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$PrestamosTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PrestamosTable,
+      Prestamo,
+      $$PrestamosTableFilterComposer,
+      $$PrestamosTableOrderingComposer,
+      $$PrestamosTableAnnotationComposer,
+      $$PrestamosTableCreateCompanionBuilder,
+      $$PrestamosTableUpdateCompanionBuilder,
+      (Prestamo, $$PrestamosTableReferences),
+      Prestamo,
+      PrefetchHooks Function({
+        bool clienteId,
+        bool movimientoId,
+        bool abonosPrestamoRefs,
+      })
+    >;
+typedef $$AbonosPrestamoTableCreateCompanionBuilder =
+    AbonosPrestamoCompanion Function({
+      Value<int> id,
+      required int prestamoId,
+      required int montoCentavos,
+      required DateTime fecha,
+      Value<String?> nota,
+      Value<int?> movimientoId,
+    });
+typedef $$AbonosPrestamoTableUpdateCompanionBuilder =
+    AbonosPrestamoCompanion Function({
+      Value<int> id,
+      Value<int> prestamoId,
+      Value<int> montoCentavos,
+      Value<DateTime> fecha,
+      Value<String?> nota,
+      Value<int?> movimientoId,
+    });
+
+final class $$AbonosPrestamoTableReferences
+    extends BaseReferences<_$AppDatabase, $AbonosPrestamoTable, AbonoPrestamo> {
+  $$AbonosPrestamoTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PrestamosTable _prestamoIdTable(_$AppDatabase db) =>
+      db.prestamos.createAlias('abonos_prestamo__prestamo_id__prestamos__id');
+
+  $$PrestamosTableProcessedTableManager get prestamoId {
+    final $_column = $_itemColumn<int>('prestamo_id')!;
+
+    final manager = $$PrestamosTableTableManager(
+      $_db,
+      $_db.prestamos,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_prestamoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MovimientosTable _movimientoIdTable(_$AppDatabase db) => db
+      .movimientos
+      .createAlias('abonos_prestamo__movimiento_id__movimientos__id');
+
+  $$MovimientosTableProcessedTableManager? get movimientoId {
+    final $_column = $_itemColumn<int>('movimiento_id');
+    if ($_column == null) return null;
+    final manager = $$MovimientosTableTableManager(
+      $_db,
+      $_db.movimientos,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_movimientoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$AbonosPrestamoTableFilterComposer
+    extends Composer<_$AppDatabase, $AbonosPrestamoTable> {
+  $$AbonosPrestamoTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get montoCentavos => $composableBuilder(
+    column: $table.montoCentavos,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fecha => $composableBuilder(
+    column: $table.fecha,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nota => $composableBuilder(
+    column: $table.nota,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PrestamosTableFilterComposer get prestamoId {
+    final $$PrestamosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.prestamoId,
+      referencedTable: $db.prestamos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PrestamosTableFilterComposer(
+            $db: $db,
+            $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MovimientosTableFilterComposer get movimientoId {
+    final $$MovimientosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.movimientoId,
+      referencedTable: $db.movimientos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MovimientosTableFilterComposer(
+            $db: $db,
+            $table: $db.movimientos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AbonosPrestamoTableOrderingComposer
+    extends Composer<_$AppDatabase, $AbonosPrestamoTable> {
+  $$AbonosPrestamoTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get montoCentavos => $composableBuilder(
+    column: $table.montoCentavos,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fecha => $composableBuilder(
+    column: $table.fecha,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nota => $composableBuilder(
+    column: $table.nota,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PrestamosTableOrderingComposer get prestamoId {
+    final $$PrestamosTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.prestamoId,
+      referencedTable: $db.prestamos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PrestamosTableOrderingComposer(
+            $db: $db,
+            $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MovimientosTableOrderingComposer get movimientoId {
+    final $$MovimientosTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.movimientoId,
+      referencedTable: $db.movimientos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MovimientosTableOrderingComposer(
+            $db: $db,
+            $table: $db.movimientos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AbonosPrestamoTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AbonosPrestamoTable> {
+  $$AbonosPrestamoTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get montoCentavos => $composableBuilder(
+    column: $table.montoCentavos,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get fecha =>
+      $composableBuilder(column: $table.fecha, builder: (column) => column);
+
+  GeneratedColumn<String> get nota =>
+      $composableBuilder(column: $table.nota, builder: (column) => column);
+
+  $$PrestamosTableAnnotationComposer get prestamoId {
+    final $$PrestamosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.prestamoId,
+      referencedTable: $db.prestamos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PrestamosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.prestamos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MovimientosTableAnnotationComposer get movimientoId {
+    final $$MovimientosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.movimientoId,
+      referencedTable: $db.movimientos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MovimientosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.movimientos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AbonosPrestamoTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AbonosPrestamoTable,
+          AbonoPrestamo,
+          $$AbonosPrestamoTableFilterComposer,
+          $$AbonosPrestamoTableOrderingComposer,
+          $$AbonosPrestamoTableAnnotationComposer,
+          $$AbonosPrestamoTableCreateCompanionBuilder,
+          $$AbonosPrestamoTableUpdateCompanionBuilder,
+          (AbonoPrestamo, $$AbonosPrestamoTableReferences),
+          AbonoPrestamo,
+          PrefetchHooks Function({bool prestamoId, bool movimientoId})
+        > {
+  $$AbonosPrestamoTableTableManager(
+    _$AppDatabase db,
+    $AbonosPrestamoTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AbonosPrestamoTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AbonosPrestamoTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AbonosPrestamoTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> prestamoId = const Value.absent(),
+                Value<int> montoCentavos = const Value.absent(),
+                Value<DateTime> fecha = const Value.absent(),
+                Value<String?> nota = const Value.absent(),
+                Value<int?> movimientoId = const Value.absent(),
+              }) => AbonosPrestamoCompanion(
+                id: id,
+                prestamoId: prestamoId,
+                montoCentavos: montoCentavos,
+                fecha: fecha,
+                nota: nota,
+                movimientoId: movimientoId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int prestamoId,
+                required int montoCentavos,
+                required DateTime fecha,
+                Value<String?> nota = const Value.absent(),
+                Value<int?> movimientoId = const Value.absent(),
+              }) => AbonosPrestamoCompanion.insert(
+                id: id,
+                prestamoId: prestamoId,
+                montoCentavos: montoCentavos,
+                fecha: fecha,
+                nota: nota,
+                movimientoId: movimientoId,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AbonosPrestamoTable, AbonoPrestamo>(table),
+                  $$AbonosPrestamoTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({prestamoId = false, movimientoId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -4692,14 +6155,25 @@ class $$MovimientosFiadoTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (clienteId) {
+                    if (prestamoId) {
                       state = state.withJoin(
                         currentTable: table,
-                        currentColumn: table.clienteId,
-                        referencedTable: $$MovimientosFiadoTableReferences
-                            ._clienteIdTable(db),
-                        referencedColumn: $$MovimientosFiadoTableReferences
-                            ._clienteIdTable(db)
+                        currentColumn: table.prestamoId,
+                        referencedTable: $$AbonosPrestamoTableReferences
+                            ._prestamoIdTable(db),
+                        referencedColumn: $$AbonosPrestamoTableReferences
+                            ._prestamoIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (movimientoId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.movimientoId,
+                        referencedTable: $$AbonosPrestamoTableReferences
+                            ._movimientoIdTable(db),
+                        referencedColumn: $$AbonosPrestamoTableReferences
+                            ._movimientoIdTable(db)
                             .id,
                       ) as T;
                     }
@@ -4715,19 +6189,19 @@ class $$MovimientosFiadoTableTableManager
       );
 }
 
-typedef $$MovimientosFiadoTableProcessedTableManager =
+typedef $$AbonosPrestamoTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $MovimientosFiadoTable,
-      MovimientoFiado,
-      $$MovimientosFiadoTableFilterComposer,
-      $$MovimientosFiadoTableOrderingComposer,
-      $$MovimientosFiadoTableAnnotationComposer,
-      $$MovimientosFiadoTableCreateCompanionBuilder,
-      $$MovimientosFiadoTableUpdateCompanionBuilder,
-      (MovimientoFiado, $$MovimientosFiadoTableReferences),
-      MovimientoFiado,
-      PrefetchHooks Function({bool clienteId})
+      $AbonosPrestamoTable,
+      AbonoPrestamo,
+      $$AbonosPrestamoTableFilterComposer,
+      $$AbonosPrestamoTableOrderingComposer,
+      $$AbonosPrestamoTableAnnotationComposer,
+      $$AbonosPrestamoTableCreateCompanionBuilder,
+      $$AbonosPrestamoTableUpdateCompanionBuilder,
+      (AbonoPrestamo, $$AbonosPrestamoTableReferences),
+      AbonoPrestamo,
+      PrefetchHooks Function({bool prestamoId, bool movimientoId})
     >;
 typedef $$EmpleadosTableCreateCompanionBuilder = EmpleadosCompanion Function({
   Value<int> id,
@@ -5561,8 +7035,10 @@ class $AppDatabaseManager {
       $$MovimientosTableTableManager(_db, _db.movimientos);
   $$ClientesTableTableManager get clientes =>
       $$ClientesTableTableManager(_db, _db.clientes);
-  $$MovimientosFiadoTableTableManager get movimientosFiado =>
-      $$MovimientosFiadoTableTableManager(_db, _db.movimientosFiado);
+  $$PrestamosTableTableManager get prestamos =>
+      $$PrestamosTableTableManager(_db, _db.prestamos);
+  $$AbonosPrestamoTableTableManager get abonosPrestamo =>
+      $$AbonosPrestamoTableTableManager(_db, _db.abonosPrestamo);
   $$EmpleadosTableTableManager get empleados =>
       $$EmpleadosTableTableManager(_db, _db.empleados);
   $$PagosEmpleadoTableTableManager get pagosEmpleado =>

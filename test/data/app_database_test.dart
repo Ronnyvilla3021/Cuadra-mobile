@@ -50,37 +50,4 @@ void main() {
       throwsArgumentError,
     );
   });
-
-  test('fiados: la deuda se calcula y el pago entra a la caja', () async {
-    final clienteId = await db.crearCliente(nombre: 'Carlos');
-
-    await db.registrarCompraFiado(clienteId: clienteId, montoCentavos: 2000);
-    await db.registrarCompraFiado(clienteId: clienteId, montoCentavos: 1500);
-    expect(await db.deudaClienteCentavos(clienteId), 3500);
-    // Una compra fiada todavía no mueve la caja.
-    expect(await db.watchSaldoCentavos().first, 0);
-
-    await db.registrarPagoFiado(clienteId: clienteId, montoCentavos: 1000);
-    expect(await db.deudaClienteCentavos(clienteId), 2500);
-    // El pago sí entra a la caja como ingreso.
-    expect(await db.watchSaldoCentavos().first, 1000);
-
-    final movs = await db.select(db.movimientos).get();
-    expect(movs.length, 1);
-    expect(movs.first.origen, OrigenMovimiento.pagoFiado);
-    expect(movs.first.categoriaId, isNotNull);
-  });
-
-  test('no permite pagar más de lo que se debe', () async {
-    final clienteId = await db.crearCliente(nombre: 'María');
-    await db.registrarCompraFiado(clienteId: clienteId, montoCentavos: 1000);
-
-    await expectLater(
-      db.registrarPagoFiado(clienteId: clienteId, montoCentavos: 5000),
-      throwsStateError,
-    );
-    // Nada se guardó: deuda y caja siguen igual.
-    expect(await db.deudaClienteCentavos(clienteId), 1000);
-    expect(await db.watchSaldoCentavos().first, 0);
-  });
 }

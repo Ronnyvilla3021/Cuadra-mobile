@@ -26,7 +26,8 @@ const _categoriasGasto = [
     Categorias,
     Movimientos,
     Clientes,
-    MovimientosFiado,
+    Prestamos,
+    AbonosPrestamo,
     Empleados,
     PagosEmpleado,
   ],
@@ -142,7 +143,7 @@ class AppDatabase extends _$AppDatabase {
     ).watchSingle().map((row) => row.read<int>('saldo'));
   }
 
-  // ----------------------------------------------------------------- Fiados
+  // ----------------------------------------------------------------- Personas
 
   Future<int> crearCliente({required String nombre, String? telefono}) async {
     return into(clientes).insert(
@@ -150,91 +151,9 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  /// Deuda actual = compras fiadas - pagos (siempre calculada).
-  Future<int> deudaClienteCentavos(int clienteId) async {
-    final row = await customSelect(
-      'SELECT COALESCE(SUM(CASE WHEN tipo = ? THEN monto_centavos '
-      'ELSE -monto_centavos END), 0) AS deuda '
-      'FROM movimientos_fiado WHERE cliente_id = ?',
-      variables: [
-        Variable.withString(TipoFiado.compra.name),
-        Variable.withInt(clienteId),
-      ],
-      readsFrom: {movimientosFiado},
-    ).getSingle();
-    return row.read<int>('deuda');
-  }
-
-  /// Una compra fiada aumenta la deuda del cliente.
-  /// No mueve la caja: el dinero todavía no entró.
-  Future<int> registrarCompraFiado({
-    required int clienteId,
-    required int montoCentavos,
-    String? nota,
-    DateTime? fecha,
-  }) async {
-    _validarMonto(montoCentavos);
-    return into(movimientosFiado).insert(
-      MovimientosFiadoCompanion.insert(
-        clienteId: clienteId,
-        tipo: TipoFiado.compra,
-        montoCentavos: montoCentavos,
-        fecha: fecha ?? DateTime.now(),
-        nota: Value(nota),
-      ),
-    );
-  }
-
-  /// Un pago reduce la deuda Y registra un ingreso en la caja,
-  /// ambas cosas en una sola transacción (o se guardan las dos, o ninguna).
-  Future<void> registrarPagoFiado({
-    required int clienteId,
-    required int montoCentavos,
-    String? nota,
-    DateTime? fecha,
-  }) async {
-    _validarMonto(montoCentavos);
-
-    await transaction(() async {
-      final deuda = await deudaClienteCentavos(clienteId);
-      if (montoCentavos > deuda) {
-        throw StateError('El pago supera la deuda actual del cliente.');
-      }
-
-      final cliente = await (select(clientes)
-            ..where((c) => c.id.equals(clienteId)))
-          .getSingle();
-      final cuando = fecha ?? DateTime.now();
-
-      final pagoId = await into(movimientosFiado).insert(
-        MovimientosFiadoCompanion.insert(
-          clienteId: clienteId,
-          tipo: TipoFiado.pago,
-          montoCentavos: montoCentavos,
-          fecha: cuando,
-          nota: Value(nota),
-        ),
-      );
-
-      await into(movimientos).insert(
-        MovimientosCompanion.insert(
-          tipo: TipoMovimiento.ingreso,
-          concepto: 'Pago de ${cliente.nombre}',
-          montoCentavos: montoCentavos,
-          fecha: cuando,
-          categoriaId: Value(
-            await _categoriaId('Pago recibido', TipoMovimiento.ingreso),
-          ),
-          origen: const Value(OrigenMovimiento.pagoFiado),
-          origenId: Value(pagoId),
-        ),
-      );
-    });
-  }
-
   // ---------------------------------------------------------------- Helpers
 
-  Future<int?> _categoriaId(String nombre, TipoMovimiento tipo) async {
+  Future<int?> categoriaPredeterminadaId(String nombre, TipoMovimiento tipo) async {
     final fila = await (select(categorias)
           ..where((c) => c.nombre.equals(nombre) & c.tipo.equalsValue(tipo)))
         .getSingleOrNull();

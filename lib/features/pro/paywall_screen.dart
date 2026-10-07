@@ -11,7 +11,7 @@ class PaywallScreen extends ConsumerWidget {
   const PaywallScreen({super.key});
 
   static const _beneficios = [
-    'Fiados ilimitados',
+    'Préstamos y alertas de cobro',
     'Empleados y pagos de personal',
     'Reportes y estadísticas avanzadas',
     'Exportación sin ver videos',

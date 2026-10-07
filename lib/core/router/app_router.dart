@@ -1,12 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/ajustes/ajustes_screen.dart';
+import '../../features/ajustes/reportes_guardados_screen.dart';
 import '../../features/caja/caja_screen.dart';
-import '../../features/fiados/fiados_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
 import '../../features/personal/personal_screen.dart';
+import '../../features/prestamos/nuevo_prestamo_screen.dart';
+import '../../features/prestamos/prestamo_detalle_screen.dart';
+import '../../features/prestamos/prestamos_screen.dart';
 import '../../features/pro/paywall_screen.dart';
 import '../widgets/adaptive_scaffold.dart';
 
@@ -49,14 +53,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/fiados',
-              builder: (context, state) => const FiadosScreen(),
+              path: '/prestamos',
+              builder: (context, state) => const PrestamosScreen(),
+              routes: [
+                GoRoute(
+                  path: 'nuevo',
+                  builder: (context, state) => const NuevoPrestamoScreen(),
+                ),
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) => PrestamoDetalleScreen(
+                    id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+                  ),
+                ),
+              ],
             ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/personal',
               builder: (context, state) => const PersonalScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/ajustes',
+              builder: (context, state) => const AjustesScreen(),
+              routes: [
+                GoRoute(
+                  path: 'reportes',
+                  builder: (context, state) =>
+                      const ReportesGuardadosScreen(),
+                ),
+              ],
             ),
           ]),
         ],

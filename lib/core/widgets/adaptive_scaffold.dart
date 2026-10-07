@@ -37,8 +37,14 @@ class AdaptiveScaffold extends ConsumerWidget {
       Icons.account_balance_wallet_outlined,
       Icons.account_balance_wallet,
     ),
-    _Destination('Fiados', Icons.groups_outlined, Icons.groups, pro: true),
+    _Destination(
+      'Préstamos',
+      Icons.request_quote_outlined,
+      Icons.request_quote,
+      pro: true,
+    ),
     _Destination('Personal', Icons.badge_outlined, Icons.badge, pro: true),
+    _Destination('Ajustes', Icons.settings_outlined, Icons.settings),
   ];
 
   void _onSelected(int index) {

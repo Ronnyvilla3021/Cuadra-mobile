@@ -65,18 +65,47 @@ class Clientes extends Table {
   DateTimeColumn get creadoEn => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Compras fiadas (suman deuda) y pagos (restan deuda).
-/// Deuda actual = SUM(compras) - SUM(pagos).
-@DataClassName('MovimientoFiado')
-@TableIndex(name: 'idx_fiado_cliente', columns: {#clienteId})
-class MovimientosFiado extends Table {
+/// Un préstamo de dinero a una persona (tabla Clientes).
+/// Pagado = SUM(abonos); pendiente = monto - pagado (siempre calculados).
+@DataClassName('Prestamo')
+@TableIndex(name: 'idx_prestamos_cliente', columns: {#clienteId})
+class Prestamos extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get clienteId => integer().references(Clientes, #id)();
-  TextColumn get tipo => textEnum<TipoFiado>()();
   IntColumn get montoCentavos =>
       integer().check(montoCentavos.isBiggerThanValue(0))();
+  DateTimeColumn get fechaPrestamo => dateTime()();
+
+  /// Fecha en que se espera el pago (null = sin fecha).
+  DateTimeColumn get fechaVencimiento => dateTime().nullable()();
   TextColumn get nota => text().nullable()();
+
+  /// Si el dinero salió de la caja (se decide al crear el préstamo y ya no
+  /// cambia, aunque el usuario modifique el ajuste después).
+  BoolColumn get salioDeCaja => boolean().withDefault(const Constant(true))();
+
+  /// Gasto generado en la caja al prestar (si salió de la caja).
+  IntColumn get movimientoId => integer()
+      .nullable()
+      .references(Movimientos, #id, onDelete: KeyAction.setNull)();
+  DateTimeColumn get creadoEn => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// Pagos parciales o totales de un préstamo.
+@DataClassName('AbonoPrestamo')
+@TableIndex(name: 'idx_abonos_prestamo', columns: {#prestamoId})
+class AbonosPrestamo extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get prestamoId => integer().references(Prestamos, #id)();
+  IntColumn get montoCentavos =>
+      integer().check(montoCentavos.isBiggerThanValue(0))();
   DateTimeColumn get fecha => dateTime()();
+  TextColumn get nota => text().nullable()();
+
+  /// Ingreso generado en la caja por este pago (si el préstamo salió de ella).
+  IntColumn get movimientoId => integer()
+      .nullable()
+      .references(Movimientos, #id, onDelete: KeyAction.setNull)();
 }
 
 @DataClassName('Empleado')

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mi_negocio/data/database/app_database.dart';
 import 'package:mi_negocio/data/database/caja_queries.dart';
 import 'package:mi_negocio/data/database/enums.dart';
+import 'package:mi_negocio/data/database/prestamos_queries.dart';
 
 void main() {
   late AppDatabase db;
@@ -56,13 +57,15 @@ void main() {
     expect(await db.watchSaldoCentavos().first, -100);
   });
 
-  test('no elimina movimientos que vienen de un pago de fiado', () async {
-    final clienteId = await db.crearCliente(nombre: 'Carlos');
-    await db.registrarCompraFiado(clienteId: clienteId, montoCentavos: 1000);
-    await db.registrarPagoFiado(clienteId: clienteId, montoCentavos: 400);
-
+  test('no elimina movimientos que vienen de un préstamo', () async {
+    await db.crearPrestamo(
+      nombrePersona: 'Carlos',
+      montoCentavos: 1000,
+      salioDeCaja: true,
+    );
     final lista = await db.watchMovimientos().first;
+
     expect(await db.eliminarMovimientoManual(lista.single.id), isFalse);
-    expect(await db.watchSaldoCentavos().first, 400);
+    expect(await db.watchSaldoCentavos().first, -1000);
   });
 }
