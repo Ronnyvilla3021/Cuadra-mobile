@@ -8,6 +8,7 @@ import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
 import '../../features/personal/personal_screen.dart';
+import '../../features/prestamos/calendario_prestamos_screen.dart';
 import '../../features/prestamos/nuevo_prestamo_screen.dart';
 import '../../features/prestamos/prestamo_detalle_screen.dart';
 import '../../features/prestamos/prestamos_screen.dart';
@@ -59,6 +60,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 GoRoute(
                   path: 'nuevo',
                   builder: (context, state) => const NuevoPrestamoScreen(),
+                ),
+                GoRoute(
+                  path: 'calendario',
+                  builder: (context, state) =>
+                      const CalendarioPrestamosScreen(),
                 ),
                 GoRoute(
                   path: ':id',

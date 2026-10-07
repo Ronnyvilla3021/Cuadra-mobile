@@ -73,6 +73,11 @@ class _PrestamosListaState extends ConsumerState<_PrestamosLista> {
         title: const Text('Préstamos'),
         actions: [
           IconButton(
+            tooltip: 'Calendario de cobros',
+            icon: const Icon(Icons.calendar_month_outlined),
+            onPressed: () => context.push('/prestamos/calendario'),
+          ),
+          IconButton(
             tooltip: 'Ajustes de préstamos',
             icon: const Icon(Icons.tune),
             onPressed: () => showModalBottomSheet<void>(
