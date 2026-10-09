@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/money.dart';
+import '../ads/ad_config.dart';
+import '../alertas/servicio_alertas.dart';
 import 'ajustes_prestamos.dart';
 
 /// Ajustes de préstamos: de dónde sale el dinero y límite para prestar.
@@ -17,6 +20,7 @@ class AjustesPrestamosSheet extends ConsumerStatefulWidget {
 class _AjustesPrestamosSheetState extends ConsumerState<AjustesPrestamosSheet> {
   final _formKey = GlobalKey<FormState>();
   late bool _salen;
+  late bool _avisos;
   late final TextEditingController _limiteCtrl;
 
   @override
@@ -24,6 +28,7 @@ class _AjustesPrestamosSheetState extends ConsumerState<AjustesPrestamosSheet> {
     super.initState();
     final a = ref.read(ajustesPrestamosProvider);
     _salen = a.salenDeCaja;
+    _avisos = ref.read(avisosCobroProvider);
     _limiteCtrl = TextEditingController(
       text: a.limiteCentavos == null ? '' : montoPlano(a.limiteCentavos!),
     );
@@ -42,6 +47,11 @@ class _AjustesPrestamosSheetState extends ConsumerState<AjustesPrestamosSheet> {
           salenDeCaja: _salen,
           limiteCentavos: texto.isEmpty ? null : Money.parse(texto),
         );
+    final avisosAntes = ref.read(avisosCobroProvider);
+    await ref.read(avisosCobroProvider.notifier).establecer(_avisos);
+    if (_avisos && !avisosAntes && AdConfig.disponible) {
+      await ref.read(servicioAlertasProvider).pedirPermiso();
+    }
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -78,6 +88,30 @@ class _AjustesPrestamosSheetState extends ConsumerState<AjustesPrestamosSheet> {
                 value: _salen,
                 onChanged: (v) => setState(() => _salen = v),
               ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Avisarme los días de cobro'),
+                subtitle: const Text(
+                  'Notificación en tu celular el día anterior y el día del '
+                  'cobro, a las 9:00.',
+                ),
+                value: _avisos,
+                onChanged: (v) => setState(() => _avisos = v),
+              ),
+              if (kDebugMode) ...[
+                TextButton.icon(
+                  icon: const Icon(Icons.notifications_active_outlined),
+                  label: const Text('Aviso de prueba ahora (debug)'),
+                  onPressed: () =>
+                      ref.read(servicioAlertasProvider).probarAhora(),
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.schedule),
+                  label: const Text('Aviso programado en 1 minuto (debug)'),
+                  onPressed: () =>
+                      ref.read(servicioAlertasProvider).probarEnUnMinuto(),
+                ),
+              ],
               const SizedBox(height: 12),
               TextFormField(
                 controller: _limiteCtrl,

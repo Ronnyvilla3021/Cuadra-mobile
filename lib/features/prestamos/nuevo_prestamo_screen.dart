@@ -9,6 +9,8 @@ import '../../core/utils/money.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/prestamos_queries.dart';
 import '../../data/providers.dart';
+import '../ads/ad_config.dart';
+import '../alertas/servicio_alertas.dart';
 import 'ajustes_prestamos.dart';
 import 'prestamos_providers.dart';
 
@@ -143,6 +145,8 @@ class _NuevoPrestamoScreenState extends ConsumerState<NuevoPrestamoScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Préstamo registrado')),
       );
+      if (_vencimiento != null) await _ofrecerAvisos();
+      if (!mounted) return;
       context.pop();
     } catch (_) {
       if (!mounted) return;
@@ -150,6 +154,45 @@ class _NuevoPrestamoScreenState extends ConsumerState<NuevoPrestamoScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No se pudo guardar el préstamo.')),
       );
+    }
+  }
+
+  /// La primera vez que hay una fecha de pago, explica los avisos y pide el
+  /// permiso de notificaciones de Android.
+  Future<void> _ofrecerAvisos() async {
+    final servicio = ref.read(servicioAlertasProvider);
+    if (!AdConfig.disponible ||
+        !ref.read(avisosCobroProvider) ||
+        servicio.yaPreguntado()) {
+      return;
+    }
+    final acepta = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Avisarte cuando te toque cobrar?'),
+        content: const Text(
+          'Cuadra puede mostrarte una notificación el día anterior y el día '
+          'del cobro, a las 9:00. Funciona sin internet y puedes '
+          'desactivarlo cuando quieras en Ajustes de préstamos.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Ahora no'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Activar avisos'),
+          ),
+        ],
+      ),
+    );
+    await servicio.marcarPreguntado();
+    final notifier = ref.read(avisosCobroProvider.notifier);
+    if (acepta == true) {
+      if (!await servicio.pedirPermiso()) await notifier.establecer(false);
+    } else {
+      await notifier.establecer(false);
     }
   }
 

@@ -6,11 +6,14 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/fechas.dart';
 import '../../core/utils/money.dart';
 import '../../data/database/app_database.dart';
+import '../../data/database/clientes_queries.dart';
 import '../../data/database/prestamos_queries.dart';
 import '../../data/providers.dart';
 import 'abono_sheet.dart';
 import 'estado_ui.dart';
 import 'prestamos_providers.dart';
+import 'telefono_dialog.dart';
+import 'whatsapp.dart';
 
 /// Informe completo de un préstamo: estado, pagos, deuda y fechas.
 class PrestamoDetalleScreen extends ConsumerWidget {
@@ -33,6 +36,41 @@ class PrestamoDetalleScreen extends ConsumerWidget {
     if (guardado == true && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pago registrado')),
+      );
+    }
+  }
+
+  Future<void> _recordarPorWhatsapp(
+    BuildContext context,
+    WidgetRef ref,
+    ResumenPrestamo r,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    var crudo = r.cliente.telefono ?? '';
+    if (telefonoParaWhatsapp(crudo) == null) {
+      final escrito = await showDialog<String>(
+        context: context,
+        builder: (_) => TelefonoDialog(nombre: r.cliente.nombre, inicial: crudo),
+      );
+      if (escrito == null) return;
+      crudo = escrito;
+      await ref
+          .read(appDatabaseProvider)
+          .actualizarTelefonoCliente(r.cliente.id, crudo);
+    }
+    final telefono = telefonoParaWhatsapp(crudo);
+    if (telefono == null) return;
+    final mensaje = mensajeRecordatorio(
+      nombre: r.cliente.nombre,
+      pendienteCentavos: r.pendienteCentavos,
+      vencimiento: r.prestamo.fechaVencimiento,
+      ahora: DateTime.now(),
+      negocio: ref.read(negocioProvider).value?.nombre,
+    );
+    final ok = await abrirWhatsapp(enlaceWhatsapp(telefono, mensaje));
+    if (!ok) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('No se pudo abrir WhatsApp.')),
       );
     }
   }
@@ -197,12 +235,19 @@ class PrestamoDetalleScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          if (r.pendienteCentavos > 0)
+          if (r.pendienteCentavos > 0) ...[
             FilledButton.icon(
               onPressed: () => _registrarPago(context, r),
               icon: const Icon(Icons.payments_outlined),
               label: const Text('Registrar pago'),
             ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () => _recordarPorWhatsapp(context, ref, r),
+              icon: const Icon(Icons.chat_outlined),
+              label: const Text('Recordar por WhatsApp'),
+            ),
+          ],
           const SizedBox(height: 20),
           Text('Historial', style: textTheme.titleMedium),
           const SizedBox(height: 4),
