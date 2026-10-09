@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mi_negocio/data/database/app_database.dart';
 import 'package:mi_negocio/data/database/enums.dart';
+import 'package:mi_negocio/data/database/prestamos_queries.dart';
 import 'package:mi_negocio/features/reportes/reporte_datos.dart';
 import 'package:mi_negocio/features/reportes/reporte_pdf.dart';
 

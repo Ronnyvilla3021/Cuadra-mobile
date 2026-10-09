@@ -104,9 +104,11 @@ class AjustesScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.picture_as_pdf_outlined),
             title: const Text('Mis reportes'),
-            subtitle: const Text('PDF exportados en este celular'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/ajustes/reportes'),
+            subtitle: Text(
+              esPro ? 'PDF exportados en este celular' : 'Solo con Cuadra PRO',
+            ),
+            trailing: Icon(esPro ? Icons.chevron_right : Icons.lock_outline),
+            onTap: () => context.push(esPro ? '/ajustes/reportes' : '/pro'),
           ),
           const ListTile(
             enabled: false,

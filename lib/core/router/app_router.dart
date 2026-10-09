@@ -7,6 +7,7 @@ import '../../features/caja/caja_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
+import '../../features/personal/empleado_detalle_screen.dart';
 import '../../features/personal/personal_screen.dart';
 import '../../features/prestamos/calendario_prestamos_screen.dart';
 import '../../features/prestamos/nuevo_prestamo_screen.dart';
@@ -80,6 +81,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             GoRoute(
               path: '/personal',
               builder: (context, state) => const PersonalScreen(),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) => EmpleadoDetalleScreen(
+                    id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+                  ),
+                ),
+              ],
             ),
           ]),
           StatefulShellBranch(routes: [

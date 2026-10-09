@@ -11,6 +11,7 @@ import '../ads/rewarded_export.dart';
 import '../ajustes/reportes_guardados_screen.dart';
 import '../pro/pro_providers.dart';
 import 'compartir_pdf.dart';
+import 'descargar_pdf.dart';
 import 'periodo_reporte.dart';
 import 'reporte_datos.dart';
 import 'reporte_pdf.dart';
@@ -126,7 +127,12 @@ class _ExportarScreenState extends ConsumerState<ExportarScreen> {
               const SizedBox(height: 4),
               Text(nombre, style: Theme.of(ctx).textTheme.bodySmall),
               const SizedBox(height: 4),
-              const Text('Quedó guardado en "Mis reportes".'),
+              Text(
+                ref.read(isProProvider)
+                    ? 'También quedó en "Mis reportes".'
+                    : 'Guárdalo o compártelo ahora. Con PRO todos tus reportes '
+                        'quedan en "Mis reportes".',
+              ),
               const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: () async {
@@ -138,12 +144,12 @@ class _ExportarScreenState extends ConsumerState<ExportarScreen> {
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(ctx).pop();
-                  context.push('/ajustes/reportes');
+                  await guardarPdfEnCelular(context, archivo);
                 },
-                icon: const Icon(Icons.folder_open),
-                label: const Text('Ver mis reportes'),
+                icon: const Icon(Icons.download),
+                label: const Text('Guardar en mi celular'),
               ),
             ],
           ),
@@ -210,6 +216,12 @@ class _ExportarScreenState extends ConsumerState<ExportarScreen> {
                   )
                 : const Icon(Icons.picture_as_pdf),
             label: Text(_trabajando ? 'Creando PDF...' : 'Generar PDF'),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => context.push(esPro ? '/ajustes/reportes' : '/pro'),
+            icon: Icon(esPro ? Icons.folder_open : Icons.lock_outline),
+            label: Text(esPro ? 'Mis reportes' : 'Mis reportes (PRO)'),
           ),
           const SizedBox(height: 12),
           Text(

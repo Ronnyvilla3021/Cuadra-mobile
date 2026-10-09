@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../core/widgets/placeholder_screen.dart';
 import '../pro/pro_gate.dart';
+import 'empleados_lista.dart';
 
 class PersonalScreen extends StatelessWidget {
   const PersonalScreen({super.key});
@@ -17,8 +17,7 @@ class PersonalScreen extends StatelessWidget {
         (Icons.remove_circle_outline, 'Deducciones'),
         (Icons.bar_chart, 'Reportes'),
       ],
-      // Se reemplaza por la pantalla real más adelante.
-      child: PlaceholderScreen(title: 'Personal', icon: Icons.badge),
+      child: EmpleadosLista(),
     );
   }
 }
