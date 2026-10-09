@@ -21,6 +21,28 @@ class FilaMovimiento {
   final int montoCentavos;
 }
 
+class FilaPagoEmpleado {
+  const FilaPagoEmpleado({
+    required this.fecha,
+    required this.empleado,
+    required this.tipoPago,
+    required this.unidades,
+    required this.tarifaCentavos,
+    required this.bonificacionCentavos,
+    required this.deduccionCentavos,
+    required this.totalCentavos,
+  });
+
+  final DateTime fecha;
+  final String empleado;
+  final TipoPago tipoPago;
+  final double unidades;
+  final int tarifaCentavos;
+  final int bonificacionCentavos;
+  final int deduccionCentavos;
+  final int totalCentavos;
+}
+
 /// Todo lo que lleva un reporte: movimientos de caja del período y los
 /// préstamos entregados en ese período.
 class DatosReporte {
@@ -30,6 +52,7 @@ class DatosReporte {
     required this.movimientos,
     required this.prestamos,
     required this.porCobrarTotalCentavos,
+    this.pagosEmpleados = const [],
   });
 
   final DateTime desde;
@@ -39,6 +62,16 @@ class DatosReporte {
 
   /// Lo que todavía deben todas las personas (no solo las del período).
   final int porCobrarTotalCentavos;
+
+  /// Pagos a empleados hechos en el período.
+  final List<FilaPagoEmpleado> pagosEmpleados;
+
+  int get empleadosTotalCentavos =>
+      pagosEmpleados.fold(0, (a, p) => a + p.totalCentavos);
+  int get empleadosBonosCentavos =>
+      pagosEmpleados.fold(0, (a, p) => a + p.bonificacionCentavos);
+  int get empleadosDeduccionesCentavos =>
+      pagosEmpleados.fold(0, (a, p) => a + p.deduccionCentavos);
 
   int get ingresosCentavos => _suma(TipoMovimiento.ingreso);
   int get gastosCentavos => _suma(TipoMovimiento.gasto);
@@ -113,12 +146,39 @@ extension ReportesQueries on AppDatabase {
       (a, p) => a + (p.pendienteCentavos > 0 ? p.pendienteCentavos : 0),
     );
 
+    final consultaPagos = select(pagosEmpleado).join([
+      innerJoin(empleados, empleados.id.equalsExp(pagosEmpleado.empleadoId)),
+    ])
+      ..where(
+        pagosEmpleado.fecha.isBiggerOrEqualValue(inicio) &
+            pagosEmpleado.fecha.isSmallerThanValue(fin),
+      )
+      ..orderBy([
+        OrderingTerm.asc(pagosEmpleado.fecha),
+        OrderingTerm.asc(pagosEmpleado.id),
+      ]);
+    final filasPagos = await consultaPagos.get();
+    final pagos = [
+      for (final f in filasPagos)
+        FilaPagoEmpleado(
+          fecha: f.readTable(pagosEmpleado).fecha,
+          empleado: f.readTable(empleados).nombre,
+          tipoPago: f.readTable(empleados).tipoPago,
+          unidades: f.readTable(pagosEmpleado).unidadesTrabajadas,
+          tarifaCentavos: f.readTable(pagosEmpleado).tarifaAplicadaCentavos,
+          bonificacionCentavos: f.readTable(pagosEmpleado).bonificacionCentavos,
+          deduccionCentavos: f.readTable(pagosEmpleado).deduccionCentavos,
+          totalCentavos: f.readTable(pagosEmpleado).totalPagadoCentavos,
+        ),
+    ];
+
     return DatosReporte(
       desde: inicio,
       hasta: soloDia(hasta),
       movimientos: lista,
       prestamos: delPeriodo,
       porCobrarTotalCentavos: porCobrar,
+      pagosEmpleados: pagos,
     );
   }
 }

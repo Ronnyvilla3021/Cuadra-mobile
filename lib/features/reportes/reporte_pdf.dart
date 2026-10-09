@@ -7,6 +7,7 @@ import '../../core/utils/fechas.dart';
 import '../../core/utils/money.dart';
 import '../../data/database/enums.dart';
 import '../../data/database/prestamos_queries.dart';
+import '../personal/empleados_ui.dart';
 import 'reporte_datos.dart';
 
 const _azul = PdfColor.fromInt(0xFF1F6FEB);
@@ -30,6 +31,7 @@ Future<Uint8List> construirReportePdf({
   required String negocio,
   required bool incluirCaja,
   required bool incluirPrestamos,
+  bool incluirEmpleados = false,
   DateTime? generado,
 }) async {
   final ahora = generado ?? DateTime.now();
@@ -276,6 +278,68 @@ Future<Uint8List> construirReportePdf({
                     textoEstado(p.estado),
                     negrita: true,
                     color: colorEstado(p.estado),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      );
+    }
+  }
+
+  // -------------------------------------------------------- Empleados
+  if (incluirEmpleados) {
+    widgets
+      ..add(titulo('Pagos a empleados'))
+      ..add(
+        pw.Row(
+          children: [
+            tarjeta('Total pagado', datos.empleadosTotalCentavos, _azul),
+            tarjeta('Bonificaciones', datos.empleadosBonosCentavos, _verde),
+            tarjeta('Deducciones', datos.empleadosDeduccionesCentavos, _rojo),
+          ],
+        ),
+      )
+      ..add(pw.SizedBox(height: 8));
+
+    if (datos.pagosEmpleados.isEmpty) {
+      widgets.add(
+        pw.Text(
+          'No hay pagos a empleados en este período.',
+          style: const pw.TextStyle(fontSize: 10, color: _gris),
+        ),
+      );
+    } else {
+      widgets.add(
+        pw.Table(
+          border: bordes,
+          columnWidths: const {
+            0: pw.FixedColumnWidth(54),
+            1: pw.FlexColumnWidth(2),
+            2: pw.FlexColumnWidth(1.6),
+            3: pw.FixedColumnWidth(50),
+            4: pw.FixedColumnWidth(48),
+            5: pw.FixedColumnWidth(48),
+            6: pw.FixedColumnWidth(56),
+          },
+          children: [
+            encabezado(
+              ['Fecha', 'Empleado', 'Trabajó', 'Tarifa', 'Bono', 'Deduc.', 'Total'],
+              derecha: {3, 4, 5, 6},
+            ),
+            for (final p in datos.pagosEmpleados)
+              pw.TableRow(
+                children: [
+                  celda(fechaCorta(p.fecha)),
+                  celda(p.empleado),
+                  celda('${textoUnidades(p.unidades)} ${p.tipoPago.unidades}'),
+                  celda(Money.format(p.tarifaCentavos), alinear: pw.TextAlign.right),
+                  celda(Money.format(p.bonificacionCentavos), alinear: pw.TextAlign.right),
+                  celda(Money.format(p.deduccionCentavos), alinear: pw.TextAlign.right),
+                  celda(
+                    Money.format(p.totalCentavos),
+                    negrita: true,
+                    alinear: pw.TextAlign.right,
                   ),
                 ],
               ),

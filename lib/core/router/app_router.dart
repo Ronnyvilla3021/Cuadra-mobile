@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/ajustes/ajustes_screen.dart';
+import '../../features/ajustes/categorias_screen.dart';
+import '../../features/ajustes/privacidad_screen.dart';
+import '../../features/ajustes/respaldo_screen.dart';
 import '../../features/ajustes/reportes_guardados_screen.dart';
 import '../../features/caja/caja_screen.dart';
 import '../../features/home/home_screen.dart';
@@ -96,6 +99,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               path: '/ajustes',
               builder: (context, state) => const AjustesScreen(),
               routes: [
+                GoRoute(
+                  path: 'categorias',
+                  builder: (context, state) => const CategoriasScreen(),
+                ),
+                GoRoute(
+                  path: 'privacidad',
+                  builder: (context, state) => const PrivacidadScreen(),
+                ),
+                GoRoute(
+                  path: 'respaldo',
+                  builder: (context, state) => const RespaldoScreen(),
+                ),
                 GoRoute(
                   path: 'exportar',
                   builder: (context, state) => const ExportarScreen(),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mi_negocio/data/database/app_database.dart';
+import 'package:mi_negocio/data/database/empleados_queries.dart';
 import 'package:mi_negocio/data/database/enums.dart';
 import 'package:mi_negocio/data/database/prestamos_queries.dart';
 import 'package:mi_negocio/features/reportes/reporte_datos.dart';
@@ -97,6 +98,7 @@ void main() {
       negocio: 'Tienda de Ronny 😀',
       incluirCaja: true,
       incluirPrestamos: true,
+      incluirEmpleados: true,
       generado: DateTime(2026, 10, 9, 14, 30),
     );
     expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
@@ -113,5 +115,45 @@ void main() {
       incluirPrestamos: true,
     );
     expect(ascii.decode(b2.sublist(0, 5)), '%PDF-');
+  });
+
+  test('incluye los pagos a empleados del período', () async {
+    final id = await db.crearEmpleado(
+      nombre: 'Luis',
+      tipoPago: TipoPago.dia,
+      tarifaCentavos: 2000,
+    );
+    await db.registrarPagoEmpleado(
+      empleadoId: id,
+      unidades: 5,
+      bonificacionCentavos: 1000,
+      deduccionCentavos: 500,
+      fecha: DateTime(2026, 10, 7, 12),
+    );
+    await db.registrarPagoEmpleado(
+      empleadoId: id,
+      unidades: 1,
+      fecha: DateTime(2026, 8, 7, 12), // fuera del período
+    );
+
+    final d = await db.cargarDatosReporte(
+      desde: DateTime(2026, 10, 1),
+      hasta: DateTime(2026, 10, 9),
+    );
+
+    expect(d.pagosEmpleados.length, 1);
+    expect(d.pagosEmpleados.single.empleado, 'Luis');
+    expect(d.empleadosTotalCentavos, 10500);
+    expect(d.empleadosBonosCentavos, 1000);
+    expect(d.empleadosDeduccionesCentavos, 500);
+
+    final bytes = await construirReportePdf(
+      datos: d,
+      negocio: 'Tienda',
+      incluirCaja: false,
+      incluirPrestamos: false,
+      incluirEmpleados: true,
+    );
+    expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
   });
 }

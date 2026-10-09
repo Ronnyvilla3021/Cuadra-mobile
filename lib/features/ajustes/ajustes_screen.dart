@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/app_info.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/database/negocio_queries.dart';
 import '../../data/providers.dart';
+import '../ads/ad_config.dart';
+import '../alertas/servicio_alertas.dart';
 import '../pro/pro_providers.dart';
+import 'borrar_datos.dart';
 import 'tema_provider.dart';
 
 /// Mantener igual que `version:` en pubspec.yaml (sin el +build).
@@ -28,9 +34,40 @@ class AjustesScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _compartirApp() {
+    return SharePlus.instance.share(
+      ShareParams(
+        text: 'Llevo la caja y los préstamos de mi negocio con Cuadra. '
+            'Pruébala gratis: $kUrlPlayStore',
+      ),
+    );
+  }
+
+  Future<void> _calificarApp(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final ok = await launchUrl(
+        Uri.parse(kUrlPlayStore),
+        mode: LaunchMode.externalApplication,
+      );
+      if (ok) return;
+    } catch (_) {}
+    messenger.showSnackBar(
+      const SnackBar(content: Text('No se pudo abrir Play Store.')),
+    );
+  }
+
+  Future<void> _cambiarAvisos(WidgetRef ref, bool activos) async {
+    await ref.read(avisosCobroProvider.notifier).establecer(activos);
+    if (activos && AdConfig.disponible) {
+      await ref.read(servicioAlertasProvider).pedirPermiso();
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final negocio = ref.watch(negocioProvider).value;
+    final avisos = ref.watch(avisosCobroProvider);
     final modo = ref.watch(temaProvider);
     final esPro = ref.watch(isProProvider);
 
@@ -82,6 +119,15 @@ class AjustesScreen extends ConsumerWidget {
             ),
           ),
 
+          const _Seccion('Notificaciones'),
+          SwitchListTile(
+            secondary: const Icon(Icons.notifications_outlined),
+            title: const Text('Avisos de cobro'),
+            subtitle: const Text('Te avisamos cuando se acerca o vence un pago'),
+            value: avisos,
+            onChanged: (v) => _cambiarAvisos(ref, v),
+          ),
+
           const _Seccion('Cuadra PRO'),
           ListTile(
             leading: const Icon(Icons.workspace_premium, color: AppColors.pro),
@@ -94,6 +140,13 @@ class AjustesScreen extends ConsumerWidget {
           ),
 
           const _Seccion('Datos'),
+          ListTile(
+            leading: const Icon(Icons.label_outline),
+            title: const Text('Categorías'),
+            subtitle: const Text('Administra las de ingresos y gastos'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/ajustes/categorias'),
+          ),
           ListTile(
             leading: const Icon(Icons.ios_share),
             title: const Text('Exportar reporte'),
@@ -110,11 +163,46 @@ class AjustesScreen extends ConsumerWidget {
             trailing: Icon(esPro ? Icons.chevron_right : Icons.lock_outline),
             onTap: () => context.push(esPro ? '/ajustes/reportes' : '/pro'),
           ),
-          const ListTile(
-            enabled: false,
-            leading: Icon(Icons.cloud_upload_outlined),
-            title: Text('Copia de seguridad'),
-            subtitle: Text('Próximamente (PRO)'),
+          ListTile(
+            leading: const Icon(Icons.cloud_upload_outlined),
+            title: const Text('Copia de seguridad'),
+            subtitle: Text(
+              esPro ? 'Guarda o restaura todos tus datos' : 'Solo con Cuadra PRO',
+            ),
+            trailing: Icon(esPro ? Icons.chevron_right : Icons.lock_outline),
+            onTap: () => context.push(esPro ? '/ajustes/respaldo' : '/pro'),
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.delete_forever_outlined,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(
+              'Borrar todos mis datos',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            subtitle: const Text('Elimina todo lo guardado en este celular'),
+            onTap: () => confirmarYBorrarDatos(context, ref),
+          ),
+
+          const _Seccion('Ayuda'),
+          ListTile(
+            leading: const Icon(Icons.share_outlined),
+            title: const Text('Compartir Cuadra'),
+            subtitle: const Text('Recomiéndala a otro comerciante'),
+            onTap: _compartirApp,
+          ),
+          ListTile(
+            leading: const Icon(Icons.star_outline),
+            title: const Text('Calificar la app'),
+            subtitle: const Text('Tu opinión nos ayuda a mejorar'),
+            onTap: () => _calificarApp(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text('Política de privacidad'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/ajustes/privacidad'),
           ),
 
           const _Seccion('Acerca de'),

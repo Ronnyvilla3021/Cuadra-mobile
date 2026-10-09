@@ -30,6 +30,7 @@ class _ExportarScreenState extends ConsumerState<ExportarScreen> {
   RangoFechas? _personalizado;
   bool _caja = true;
   bool _prestamos = true;
+  bool _empleados = true;
   bool _trabajando = false;
 
   RangoFechas get _rango =>
@@ -65,7 +66,7 @@ class _ExportarScreenState extends ConsumerState<ExportarScreen> {
 
   Future<void> _generar() async {
     final messenger = ScaffoldMessenger.of(context);
-    if (!_caja && !_prestamos) {
+    if (!_caja && !_prestamos && !_empleados) {
       messenger.showSnackBar(
         const SnackBar(content: Text('Marca al menos una sección.')),
       );
@@ -89,6 +90,7 @@ class _ExportarScreenState extends ConsumerState<ExportarScreen> {
         negocio: negocio,
         incluirCaja: _caja,
         incluirPrestamos: _prestamos,
+        incluirEmpleados: _empleados,
       );
       final carpeta = await carpetaReportes();
       final archivo = File(
@@ -204,6 +206,14 @@ class _ExportarScreenState extends ConsumerState<ExportarScreen> {
                 _trabajando ? null : (v) => setState(() => _prestamos = v ?? false),
             title: const Text('Préstamos'),
             subtitle: const Text('Prestado, cobrado y pendiente por persona'),
+          ),
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            value: _empleados,
+            onChanged:
+                _trabajando ? null : (v) => setState(() => _empleados = v ?? false),
+            title: const Text('Empleados'),
+            subtitle: const Text('Pagos, bonificaciones y deducciones'),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
