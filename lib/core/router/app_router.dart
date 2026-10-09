@@ -13,6 +13,7 @@ import '../../features/prestamos/nuevo_prestamo_screen.dart';
 import '../../features/prestamos/prestamo_detalle_screen.dart';
 import '../../features/prestamos/prestamos_screen.dart';
 import '../../features/pro/paywall_screen.dart';
+import '../../features/reportes/exportar_screen.dart';
 import '../widgets/adaptive_scaffold.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -86,6 +87,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               path: '/ajustes',
               builder: (context, state) => const AjustesScreen(),
               routes: [
+                GoRoute(
+                  path: 'exportar',
+                  builder: (context, state) => const ExportarScreen(),
+                ),
                 GoRoute(
                   path: 'reportes',
                   builder: (context, state) =>

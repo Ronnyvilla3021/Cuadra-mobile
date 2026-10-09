@@ -95,6 +95,13 @@ class AjustesScreen extends ConsumerWidget {
 
           const _Seccion('Datos'),
           ListTile(
+            leading: const Icon(Icons.ios_share),
+            title: const Text('Exportar reporte'),
+            subtitle: const Text('Caja y préstamos en PDF'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/ajustes/exportar'),
+          ),
+          ListTile(
             leading: const Icon(Icons.picture_as_pdf_outlined),
             title: const Text('Mis reportes'),
             subtitle: const Text('PDF exportados en este celular'),

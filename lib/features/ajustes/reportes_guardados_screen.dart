@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/carpeta_reportes.dart';
+import '../reportes/compartir_pdf.dart';
 
 final reportesGuardadosProvider = FutureProvider.autoDispose<List<File>>((
   ref,
@@ -18,7 +19,7 @@ final reportesGuardadosProvider = FutureProvider.autoDispose<List<File>>((
 });
 
 /// Lista los PDF que Cuadra ha generado en este celular.
-/// (Compartir / guardar en Descargas se añade junto con la exportación.)
+/// Tocar uno (o el botón de compartir) abre la hoja de compartir de Android.
 class ReportesGuardadosScreen extends ConsumerWidget {
   const ReportesGuardadosScreen({super.key});
 
@@ -83,10 +84,21 @@ class ReportesGuardadosScreen extends ConsumerWidget {
                 leading: const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
                 title: Text(_nombre(f), maxLines: 1, overflow: TextOverflow.ellipsis),
                 subtitle: Text('${_fecha(f.lastModifiedSync())}  ·  ${_tamano(f.lengthSync())}'),
-                trailing: IconButton(
-                  tooltip: 'Eliminar',
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: () => _eliminar(context, ref, f),
+                onTap: () => compartirPdf(f),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: 'Compartir / guardar',
+                      icon: const Icon(Icons.share_outlined),
+                      onPressed: () => compartirPdf(f),
+                    ),
+                    IconButton(
+                      tooltip: 'Eliminar',
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () => _eliminar(context, ref, f),
+                    ),
+                  ],
                 ),
               );
             },
