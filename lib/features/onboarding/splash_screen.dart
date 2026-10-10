@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/logo_cuadra.dart';
 import '../../data/database/app_database.dart';
 import '../../data/providers.dart';
 
@@ -31,6 +32,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   Future<void> _arrancar() async {
     try {
+      // Siempre se lee de nuevo: si no, tras "Borrar todos mis datos" quedaría
+      // guardado el negocio viejo y la app no pediría crear uno nuevo.
+      ref.invalidate(negocioInicialProvider);
       // Espera la base de datos y un mínimo de 1.2 s para que se vea el splash.
       final resultados = await Future.wait<Object?>([
         ref
@@ -66,22 +70,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 112,
-                  height: 112,
-                  decoration: BoxDecoration(
-                    color: AppColors.navySurface,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.5),
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.storefront_rounded,
-                    size: 64,
-                    color: Colors.white,
-                  ),
-                ),
+                const LogoCuadra(size: 112),
                 const SizedBox(height: 24),
                 const Text(
                   'Cuadra',

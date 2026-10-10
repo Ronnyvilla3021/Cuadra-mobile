@@ -1,5 +1,5 @@
-/// Datos de la app que se usan al compartir, calificar y en la política de
-/// privacidad. CAMBIAR antes de publicar en Play Store.
+// Datos de la app que se usan al compartir, calificar y en la política de
+// privacidad. CAMBIAR antes de publicar en Play Store.
 
 /// Debe ser igual al `applicationId` de android/app/build.gradle.
 const kIdPaquete = 'com.example.mi_negocio';

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mi_negocio/data/database/app_database.dart';
@@ -9,6 +10,9 @@ import 'package:mi_negocio/data/database/prestamos_queries.dart';
 import 'package:mi_negocio/data/database/respaldo_queries.dart';
 
 void main() {
+  // La prueba abre dos bases en memoria a propósito.
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+
   late AppDatabase db;
   late Directory carpeta;
 

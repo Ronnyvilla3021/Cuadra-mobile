@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart';
-
 import 'app_database.dart';
 
 /// El archivo no es una copia de seguridad válida de Cuadra.
@@ -44,7 +42,12 @@ extension RespaldoQueries on AppDatabase {
   /// Reemplaza TODOS los datos actuales por los de la copia [archivo].
   /// Si la copia no es válida lanza [RespaldoInvalido] y no cambia nada.
   Future<void> restaurarRespaldo(File archivo) async {
-    await customStatement("ATTACH DATABASE '${_sql(archivo.path)}' AS respaldo");
+    try {
+      await customStatement("ATTACH DATABASE '${_sql(archivo.path)}' AS respaldo");
+    } catch (_) {
+      // Un archivo que no es SQLite falla ya al abrirlo.
+      throw const RespaldoInvalido('Este archivo no es una copia de Cuadra.');
+    }
     try {
       final int version;
       final bool tieneNegocios;

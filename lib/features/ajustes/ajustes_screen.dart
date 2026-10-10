@@ -29,8 +29,13 @@ class AjustesScreen extends ConsumerWidget {
       context: context,
       builder: (_) => _NombreDialog(inicial: actual),
     );
-    if (nuevo != null && nuevo != actual) {
-      await ref.read(appDatabaseProvider).renombrarNegocio(nuevo);
+    if (nuevo == null || nuevo == actual) return;
+    final db = ref.read(appDatabaseProvider);
+    if (ref.read(negocioProvider).value == null) {
+      // Por si no hay negocio (p. ej. tras borrar los datos): se crea.
+      await db.crearNegocio(nombre: nuevo);
+    } else {
+      await db.renombrarNegocio(nuevo);
     }
   }
 
@@ -79,11 +84,9 @@ class AjustesScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.storefront_outlined),
             title: const Text('Nombre del negocio'),
-            subtitle: Text(negocio?.nombre ?? '--'),
+            subtitle: Text(negocio?.nombre ?? 'Toca para ponerle nombre'),
             trailing: const Icon(Icons.edit_outlined),
-            onTap: negocio == null
-                ? null
-                : () => _editarNombre(context, ref, negocio.nombre),
+            onTap: () => _editarNombre(context, ref, negocio?.nombre ?? ''),
           ),
           const ListTile(
             leading: Icon(Icons.attach_money),

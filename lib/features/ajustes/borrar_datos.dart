@@ -38,7 +38,7 @@ Future<void> confirmarYBorrarDatos(BuildContext context, WidgetRef ref) async {
       ..invalidate(ajustesPrestamosProvider)
       ..invalidate(reportesGuardadosProvider);
 
-    router.go('/');
+    router.go('/bienvenida');
   } catch (e) {
     messenger.showSnackBar(
       SnackBar(content: Text('No se pudieron borrar los datos: $e')),

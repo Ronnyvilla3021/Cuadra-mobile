@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/utils/money.dart';
+import '../../core/widgets/logo_cuadra.dart';
 import '../../data/providers.dart';
 
 /// Configuración inicial: nombre, tipo de negocio, moneda y dinero en caja.
@@ -94,11 +95,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      Icons.storefront_rounded,
-                      size: 56,
-                      color: theme.colorScheme.primary,
-                    ),
+                    const Center(child: LogoCuadra(size: 72)),
                     const SizedBox(height: 16),
                     Text(
                       '¡Bienvenido!',
