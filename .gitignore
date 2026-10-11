@@ -46,3 +46,12 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+
+# Secretos de publicación (nunca subir)
+ids_admob.json
+android/key.properties
+android/upload-keystore.jks
+*.jks
+*.keystore
+*.bak
