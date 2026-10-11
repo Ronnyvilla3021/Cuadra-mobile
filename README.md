@@ -18,6 +18,24 @@
 
 Esta sección explica cómo preparar el proyecto, ejecutarlo, probarlo, compilarlo y publicarlo, y cómo se usa la app paso a paso.
 
+
+## 1.0 Descargar y ejecutar el proyecto
+
+Cuadra es una app Flutter (no usa npm). Para correrla en otro computador:
+
+​
+git clone https://github.com/Ronnyvilla3021/Cuadra-mobile.git
+cd Cuadra-mobile
+flutter pub get
+flutter run
+
+- Si al compilar faltan archivos `.g.dart` de Drift, genera el código con:
+  `dart run build_runner build --delete-conflicting-outputs`
+- No necesitas `ids_admob.json`: sin él la app usa los anuncios de prueba de Google.
+- No necesitas la llave de firma: solo sirve para publicar. En modo debug no se usa.
+- Necesitas Flutter 3.47.1 y un celular Android o un emulador (mira la sección 1.1).
+
+
 ## 1.1 Requisitos
 
 | Herramienta | Versión usada |
