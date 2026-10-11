@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/money.dart';
+import '../../core/utils/pantalla.dart';
 import '../../data/database/prestamos_queries.dart';
 import '../../data/providers.dart';
 import 'ajustes_prestamos.dart';
@@ -65,7 +66,7 @@ class _AbonoSheetState extends ConsumerState<AbonoSheet> {
         20,
         0,
         20,
-        20 + MediaQuery.viewInsetsOf(context).bottom,
+        espacioInferiorHoja(context),
       ),
       child: SingleChildScrollView(
         child: Form(

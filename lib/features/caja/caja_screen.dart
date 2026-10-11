@@ -8,6 +8,7 @@ import '../../data/database/app_database.dart';
 import '../../data/database/caja_queries.dart';
 import '../../data/database/enums.dart';
 import '../../data/providers.dart';
+import '../../core/widgets/imagenes_app.dart';
 import '../ads/ad_banner.dart';
 import '../ads/interstitial_service.dart';
 import '../ads/rewarded_export.dart';
@@ -108,7 +109,7 @@ class _CajaScreenState extends ConsumerState<CajaScreen> {
     return Scaffold(
       bottomNavigationBar: const AdBanner(),
       appBar: AppBar(
-        title: const Text('Caja'),
+        title: const TituloConLetras('Caja'),
         actions: [
           if (kDebugMode)
             IconButton(
@@ -261,7 +262,9 @@ class _MovimientoTile extends StatelessWidget {
       _formatearFecha(movimiento.fecha),
     ].join('  ·  ');
 
-    return ListTile(
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: ListTile(
       onLongPress: onLongPress,
       leading: CircleAvatar(
         backgroundColor: color.withValues(alpha: 0.15),
@@ -284,6 +287,7 @@ class _MovimientoTile extends StatelessWidget {
           fontSize: 16,
         ),
       ),
+      ),
     );
   }
 }
@@ -300,8 +304,16 @@ class _BarraSaldo extends StatelessWidget {
 
     return Container(
       width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      color: scheme.primary.withValues(alpha: 0.12),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          scheme.primary.withValues(alpha: 0.14),
+          scheme.surfaceContainerLow,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

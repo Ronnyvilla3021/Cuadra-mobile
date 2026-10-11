@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/app_info.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/imagenes_app.dart';
 import '../../data/database/negocio_queries.dart';
 import '../../data/providers.dart';
 import '../ads/ad_config.dart';
@@ -79,140 +80,164 @@ class AjustesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Configuración')),
       body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: LogoCuadra(size: 88)),
+          ),
           const _Seccion('Mi negocio'),
-          ListTile(
-            leading: const Icon(Icons.storefront_outlined),
-            title: const Text('Nombre del negocio'),
-            subtitle: Text(negocio?.nombre ?? 'Toca para ponerle nombre'),
-            trailing: const Icon(Icons.edit_outlined),
-            onTap: () => _editarNombre(context, ref, negocio?.nombre ?? ''),
+          _Grupo(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.storefront_outlined),
+                title: const Text('Nombre del negocio'),
+                subtitle: Text(negocio?.nombre ?? 'Toca para ponerle nombre'),
+                trailing: const Icon(Icons.edit_outlined),
+                onTap: () => _editarNombre(context, ref, negocio?.nombre ?? ''),
+              ),
+              const ListTile(
+                leading: Icon(Icons.attach_money),
+                title: Text('Moneda'),
+                subtitle: Text(r'USD - Dólar ($)'),
+              ),
+            ],
           ),
-          const ListTile(
-            leading: Icon(Icons.attach_money),
-            title: Text('Moneda'),
-            subtitle: Text(r'USD - Dólar ($)'),
-          ),
-
           const _Seccion('Apariencia'),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: SegmentedButton<ThemeMode>(
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(
-                  value: ThemeMode.system,
-                  icon: Icon(Icons.brightness_auto),
-                  label: Text('Sistema'),
+          _Grupo(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: SegmentedButton<ThemeMode>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment(
+                      value: ThemeMode.system,
+                      label: Text('Sistema'),
+                    ),
+                    ButtonSegment(
+                      value: ThemeMode.light,
+                      label: Text('Claro'),
+                    ),
+                    ButtonSegment(
+                      value: ThemeMode.dark,
+                      label: Text('Oscuro'),
+                    ),
+                  ],
+                  selected: {modo},
+                  onSelectionChanged: (s) =>
+                      ref.read(temaProvider.notifier).establecer(s.first),
                 ),
-                ButtonSegment(
-                  value: ThemeMode.light,
-                  icon: Icon(Icons.light_mode_outlined),
-                  label: Text('Claro'),
-                ),
-                ButtonSegment(
-                  value: ThemeMode.dark,
-                  icon: Icon(Icons.dark_mode_outlined),
-                  label: Text('Oscuro'),
-                ),
-              ],
-              selected: {modo},
-              onSelectionChanged: (s) =>
-                  ref.read(temaProvider.notifier).establecer(s.first),
-            ),
+              ),
+            ],
           ),
-
           const _Seccion('Notificaciones'),
-          SwitchListTile(
-            secondary: const Icon(Icons.notifications_outlined),
-            title: const Text('Avisos de cobro'),
-            subtitle: const Text('Te avisamos cuando se acerca o vence un pago'),
-            value: avisos,
-            onChanged: (v) => _cambiarAvisos(ref, v),
+          _Grupo(
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.notifications_outlined),
+                title: const Text('Avisos de cobro'),
+                subtitle: const Text('Te avisamos cuando se acerca o vence un pago'),
+                value: avisos,
+                onChanged: (v) => _cambiarAvisos(ref, v),
+              ),
+            ],
           ),
-
           const _Seccion('Cuadra PRO'),
-          ListTile(
-            leading: const Icon(Icons.workspace_premium, color: AppColors.pro),
-            title: Text(esPro ? 'Cuadra PRO activo' : 'Cuadra PRO'),
-            subtitle: Text(
-              esPro ? 'Gracias por tu suscripción' : 'Desbloquea todas las funciones',
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/pro'),
+          _Grupo(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.workspace_premium, color: AppColors.pro),
+                title: Text(esPro ? 'Cuadra PRO activo' : 'Cuadra PRO'),
+                subtitle: Text(
+                  esPro ? 'Gracias por tu suscripción' : 'Desbloquea todas las funciones',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/pro'),
+              ),
+            ],
           ),
-
           const _Seccion('Datos'),
-          ListTile(
-            leading: const Icon(Icons.label_outline),
-            title: const Text('Categorías'),
-            subtitle: const Text('Administra las de ingresos y gastos'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/ajustes/categorias'),
+          _Grupo(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.label_outline),
+                title: const Text('Categorías'),
+                subtitle: const Text('Administra las de ingresos y gastos'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/ajustes/categorias'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.ios_share),
+                title: const Text('Exportar reporte'),
+                subtitle: const Text('Caja y préstamos en PDF'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/ajustes/exportar'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf_outlined),
+                title: const Text('Mis reportes'),
+                subtitle: Text(
+                  esPro ? 'PDF exportados en este celular' : 'Solo con Cuadra PRO',
+                ),
+                trailing: Icon(esPro ? Icons.chevron_right : Icons.lock_outline),
+                onTap: () => context.push(esPro ? '/ajustes/reportes' : '/pro'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.cloud_upload_outlined),
+                title: const Text('Copia de seguridad'),
+                subtitle: Text(
+                  esPro ? 'Guarda o restaura todos tus datos' : 'Solo con Cuadra PRO',
+                ),
+                trailing: Icon(esPro ? Icons.chevron_right : Icons.lock_outline),
+                onTap: () => context.push(esPro ? '/ajustes/respaldo' : '/pro'),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.delete_forever_outlined,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(
+                  'Borrar todos mis datos',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                subtitle: const Text('Elimina todo lo guardado en este celular'),
+                onTap: () => confirmarYBorrarDatos(context, ref),
+              ),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.ios_share),
-            title: const Text('Exportar reporte'),
-            subtitle: const Text('Caja y préstamos en PDF'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/ajustes/exportar'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.picture_as_pdf_outlined),
-            title: const Text('Mis reportes'),
-            subtitle: Text(
-              esPro ? 'PDF exportados en este celular' : 'Solo con Cuadra PRO',
-            ),
-            trailing: Icon(esPro ? Icons.chevron_right : Icons.lock_outline),
-            onTap: () => context.push(esPro ? '/ajustes/reportes' : '/pro'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.cloud_upload_outlined),
-            title: const Text('Copia de seguridad'),
-            subtitle: Text(
-              esPro ? 'Guarda o restaura todos tus datos' : 'Solo con Cuadra PRO',
-            ),
-            trailing: Icon(esPro ? Icons.chevron_right : Icons.lock_outline),
-            onTap: () => context.push(esPro ? '/ajustes/respaldo' : '/pro'),
-          ),
-          ListTile(
-            leading: Icon(
-              Icons.delete_forever_outlined,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            title: Text(
-              'Borrar todos mis datos',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            subtitle: const Text('Elimina todo lo guardado en este celular'),
-            onTap: () => confirmarYBorrarDatos(context, ref),
-          ),
-
           const _Seccion('Ayuda'),
-          ListTile(
-            leading: const Icon(Icons.share_outlined),
-            title: const Text('Compartir Cuadra'),
-            subtitle: const Text('Recomiéndala a otro comerciante'),
-            onTap: _compartirApp,
+          _Grupo(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.share_outlined),
+                title: const Text('Compartir Cuadra'),
+                subtitle: const Text('Recomiéndala a otro comerciante'),
+                onTap: _compartirApp,
+              ),
+              ListTile(
+                leading: const Icon(Icons.star_outline),
+                title: const Text('Calificar la app'),
+                subtitle: const Text('Tu opinión nos ayuda a mejorar'),
+                onTap: () => _calificarApp(context),
+              ),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: const Text('Política de privacidad'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/ajustes/privacidad'),
+              ),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.star_outline),
-            title: const Text('Calificar la app'),
-            subtitle: const Text('Tu opinión nos ayuda a mejorar'),
-            onTap: () => _calificarApp(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text('Política de privacidad'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/ajustes/privacidad'),
-          ),
-
           const _Seccion('Acerca de'),
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('Versión'),
-            subtitle: Text(kVersionApp),
+          _Grupo(
+            children: [
+              const ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text('Versión'),
+                subtitle: Text(kVersionApp),
+              ),
+            ],
           ),
           const SizedBox(height: 24),
         ],
@@ -229,13 +254,35 @@ class _Seccion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+      padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
       child: Text(
         titulo,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold,
             ),
+      ),
+    );
+  }
+}
+
+/// Tarjeta que agrupa varias filas de una sección, separadas por una línea.
+class _Grupo extends StatelessWidget {
+  const _Grupo({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const Divider(height: 1, indent: 16, endIndent: 16),
+            children[i],
+          ],
+        ],
       ),
     );
   }

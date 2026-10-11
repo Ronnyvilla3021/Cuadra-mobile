@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../ads/ad_banner.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/money.dart';
+import '../../core/widgets/imagenes_app.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/enums.dart';
 import '../../data/providers.dart';
@@ -55,7 +55,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final ganancia = resumen?.gananciaCentavos;
 
     return Scaffold(
-      bottomNavigationBar: const AdBanner(),
       appBar: AppBar(
         toolbarHeight: 72,
         title: Column(
@@ -71,6 +70,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ],
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: LetrasCuadra(alto: 28),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -169,7 +174,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icono: Icons.savings_outlined,
             etiqueta: 'Ganancia estimada de hoy',
             valor: monto(ganancia),
-            color: (ganancia ?? 0) < 0 ? AppColors.expense : AppColors.primary,
+            color: (ganancia ?? 0) < 0 ? AppColors.expense : Theme.of(context).colorScheme.primary,
             nota: 'Ventas − Gastos',
           ),
           const SizedBox(height: 20),
@@ -243,7 +248,11 @@ class _TarjetaMonto extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        // Opaco: el color suave se mezcla con el de las tarjetas.
+        color: Color.alphaBlend(
+          color.withValues(alpha: 0.12),
+          Theme.of(context).colorScheme.surfaceContainerLow,
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -303,8 +312,10 @@ class _UltimoMovimiento extends StatelessWidget {
         ? 'Hoy $hora'
         : '${f.day.toString().padLeft(2, '0')}/${f.month.toString().padLeft(2, '0')} $hora';
 
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
       leading: CircleAvatar(
         backgroundColor: color.withValues(alpha: 0.15),
         child: Icon(
@@ -325,6 +336,7 @@ class _UltimoMovimiento extends StatelessWidget {
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),
+      ),
       ),
     );
   }

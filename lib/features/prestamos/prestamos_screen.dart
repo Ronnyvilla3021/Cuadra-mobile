@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/imagenes_app.dart';
 import '../../core/utils/fechas.dart';
 import '../../core/utils/money.dart';
 import '../../data/database/prestamos_queries.dart';
@@ -70,7 +71,7 @@ class _PrestamosListaState extends ConsumerState<_PrestamosLista> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Préstamos'),
+        title: const TituloConLetras('Préstamos'),
         actions: [
           IconButton(
             tooltip: 'Calendario de cobros',
@@ -145,7 +146,7 @@ class _PrestamosListaState extends ConsumerState<_PrestamosLista> {
                     child: _Resumen(
                       titulo: 'Por cobrar',
                       valor: Money.format(pendiente),
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -211,7 +212,10 @@ class _Resumen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: Color.alphaBlend(
+          color.withValues(alpha: 0.12),
+          Theme.of(context).colorScheme.surfaceContainerLow,
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

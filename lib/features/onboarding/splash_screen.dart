@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../core/widgets/logo_cuadra.dart';
+import '../../core/widgets/imagenes_app.dart';
 import '../../data/database/app_database.dart';
 import '../../data/providers.dart';
 
@@ -72,14 +72,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               children: [
                 const LogoCuadra(size: 112),
                 const SizedBox(height: 24),
-                const Text(
-                  'Cuadra',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                const LetrasCuadra(alto: 48),
                 const SizedBox(height: 8),
                 const Text(
                   'Tu negocio, en tus manos',

@@ -1,8 +1,10 @@
 flutter_native_splash:
   color: "#0B1330"
-  image: assets/icon/splash_logo.png
+  image: assets/icon/logo.png
+  branding: assets/icon/letras.png
+  branding_mode: bottom
   android_12:
     color: "#0B1330"
-    image: assets/icon/splash_logo.png
+    image: assets/icon/logo.png
   ios: false
   web: false

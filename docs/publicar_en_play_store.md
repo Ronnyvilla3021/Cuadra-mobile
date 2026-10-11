@@ -1,103 +1,70 @@
 # Guía para publicar Cuadra en Play Store
 
-Hazlo en este orden. Lo que dice **(una sola vez)** no se repite en cada versión.
+La mayor parte ya está hecha en el proyecto. Aquí solo quedan los pasos que dependen de tus cuentas.
+Hazlos en este orden.
 
-## 1. Define el nombre único de la app (una sola vez, ANTES de subir)
+## A. Antes de tener la cuenta de Play (puedes hacerlo hoy)
 
-El `applicationId` no se puede cambiar después de publicar.
+1. **Crea tu llave de firma** (una sola vez):
+   ```
+   dart run tool/preparar_release.dart --crear-llave --firma
+   ```
+   Te pide tu nombre y una contraseña. Luego haz **una copia de `android/upload-keystore.jks` y `android/key.properties`
+   fuera de tu PC** (USB o Drive privado). Si las pierdes no podrás actualizar la app.
 
-1. Abre `android/app/build.gradle.kts` (o `build.gradle` si tu proyecto usa Groovy).
-2. Cambia solo `applicationId` por algo tuyo, por ejemplo `ec.ronny.cuadra`. No toques `namespace`.
-3. Pon el mismo valor en `lib/core/app_info.dart` (`kIdPaquete`).
-4. Cambia también `kCorreoContacto` en ese archivo y en `docs/politica_privacidad.md`.
+2. **Elige el nombre único de tu app** (no se puede cambiar después de publicar), por ejemplo `ec.tunombre.cuadra`:
+   ```
+   dart run tool/preparar_release.dart --application-id=ec.tunombre.cuadra
+   ```
 
-## 2. Crea tu llave de firma (una sola vez)
+3. **Pon tu correo de contacto** (sale en la política de privacidad):
+   ```
+   dart run tool/preparar_release.dart --correo=tu@correo.com
+   ```
 
-Guárdala en un lugar seguro y haz una copia fuera de tu PC. Si la pierdes no podrás actualizar la app.
+4. **Sube la política de privacidad a internet** (gratis):
+   - Crea un repositorio público en GitHub, por ejemplo `cuadra-privacidad`.
+   - Sube el archivo `docs/privacidad_web/index.html` a la raíz del repositorio.
+   - En Settings > Pages elige "Deploy from a branch", rama `main`, carpeta `/ (root)`.
+   - Tu URL será `https://TU_USUARIO.github.io/cuadra-privacidad/`. Guárdala.
 
-En Git Bash, desde la carpeta del proyecto:
+5. Toma capturas de pantalla y revisa `docs/ficha_play_store.md` (textos listos para pegar).
 
-```
-"/c/Program Files/Android/Android Studio/jbr/bin/keytool" -genkey -v -keystore android/upload-keystore.jks -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 -alias upload
-```
+## B. Con la cuenta de Play Console (25 USD, pago único)
 
-Te pide una contraseña y tus datos. Anota la contraseña.
+1. Crea la app: nombre "Cuadra", español, gratuita.
+2. Ficha de la tienda: pega los textos de `docs/ficha_play_store.md` y sube las imágenes de la carpeta `store/`.
+3. Política de privacidad: pega la URL del paso A4.
+4. Completa los cuestionarios con las respuestas sugeridas en `docs/ficha_play_store.md`.
+5. **Crea la suscripción**: Monetizar > Productos > Suscripciones > ID `cuadra_pro_mensual`, plan base mensual de 2.50 USD.
+6. Crea tus **cuentas de prueba** (Configuración > Pruebas de licencia) con tu correo, para probar el pago sin cobrarte.
 
-Crea `android/key.properties` con:
+## C. Con la cuenta de AdMob
 
-```
-storePassword=TU_CONTRASEÑA
-keyPassword=TU_CONTRASEÑA
-keyAlias=upload
-storeFile=../upload-keystore.jks
-```
+1. Registra la app en admob.google.com y crea 3 bloques: Banner, Intersticial y Recompensado.
+2. Pon el ID de la aplicación (`ca-app-pub-XXXX~YYYY`):
+   ```
+   dart run tool/preparar_release.dart --admob-app-id=ca-app-pub-XXXX~YYYY
+   ```
+3. Copia `ids_admob.example.json` como `ids_admob.json` y pega los 3 IDs de los bloques (este archivo no se sube a GitHub).
 
-Añade estas dos líneas a `.gitignore` para no subir tus claves a GitHub:
-
-```
-android/key.properties
-android/*.jks
-```
-
-## 3. Conecta la firma al build
-
-Cuando llegues aquí, mándame tu `android/app/build.gradle.kts` y te devuelvo el archivo completo ya con la firma puesta. No lo edites a mano: es fácil romperlo.
-
-## 4. Anuncios reales (AdMob)
-
-1. Crea tu cuenta en admob.google.com y registra la app.
-2. Crea 3 bloques de anuncios: Banner, Intersticial y Recompensado.
-3. Mándame el **ID de la app** (`ca-app-pub-XXXX~YYYY`) para ponerlo en `AndroidManifest.xml`.
-4. Los IDs de los 3 bloques se pasan al compilar (paso 5).
-
-Nunca hagas clic en tus propios anuncios reales: te pueden bloquear la cuenta. Usa los IDs de prueba mientras desarrollas.
-
-## 5. Genera el archivo para subir
+## D. Generar la versión para subir
 
 ```
-flutter build appbundle --release --dart-define=ADMOB_BANNER_ID=ca-app-pub-XXXX/AAAA --dart-define=ADMOB_INTERSTITIAL_ID=ca-app-pub-XXXX/BBBB --dart-define=ADMOB_REWARDED_ID=ca-app-pub-XXXX/CCCC
+flutter build appbundle --release --dart-define-from-file=ids_admob.json
 ```
 
-El resultado queda en `build/app/outputs/bundle/release/app-release.aab`.
+El archivo queda en `build/app/outputs/bundle/release/app-release.aab`. Súbelo a Pruebas internas en Play Console,
+instálala desde ahí en tu celular y prueba la suscripción con tu cuenta de prueba. Si todo funciona, pásala a Producción.
 
-## 6. Política de privacidad en internet (gratis)
+Nota: las cuentas personales nuevas suelen necesitar una prueba cerrada con un grupo de testers durante unas 2 semanas antes de
+poder publicar en producción. Revisa el requisito exacto en tu Play Console.
 
-Play Store pide una URL pública.
+## Lista final
 
-1. Crea un repositorio público en GitHub, por ejemplo `cuadra-privacidad`.
-2. Sube `docs/politica_privacidad.md` como `index.md`.
-3. En Settings > Pages activa la publicación desde la rama `main`.
-4. Tu URL será `https://TU_USUARIO.github.io/cuadra-privacidad/`.
-
-## 7. Play Console
-
-1. Crea la cuenta de desarrollador (pago único de 25 USD).
-2. Crea la app: nombre "Cuadra", idioma español, app gratuita.
-3. **Ficha de la tienda:**
-   - Descripción corta y larga.
-   - Ícono 512x512 (`assets/icon/icon.png` reducido).
-   - Imagen destacada 1024x500.
-   - Mínimo 2 capturas de pantalla del celular. Para tablet, capturas de 7" y 10".
-4. **Política de privacidad:** pega la URL del paso 6.
-5. **Anuncios:** responde "Sí, contiene anuncios".
-6. **Seguridad de los datos**, respuestas sugeridas:
-   - Tú no recopilas datos en servidores.
-   - Declara el "ID de publicidad / otros ID del dispositivo" que usa AdMob, con finalidad de publicidad.
-   - Los datos del negocio quedan solo en el dispositivo.
-7. **Clasificación de contenido:** cuestionario, sin contenido sensible.
-8. **Público objetivo:** mayores de 13 años o adultos (no es una app infantil).
-9. **Prueba cerrada:** las cuentas personales nuevas suelen tener que probar con un grupo de testers durante unas 2 semanas antes de pasar a producción. Revisa el requisito exacto en tu Play Console.
-10. Sube el `.aab` primero a Pruebas internas y luego avanza a producción.
-
-## 8. Cobro de PRO
-
-Se hace después de tener la app creada en Play Console, porque ahí se crea el producto de suscripción (por ejemplo `cuadra_pro_mensual`, 2.50 USD/mes). Ese será el siguiente paso de código.
-
-## Lista final antes de enviar
-
-- [ ] `applicationId` propio y `kIdPaquete` igual.
-- [ ] Correo de contacto real en la política.
-- [ ] Llave de firma guardada y con copia.
-- [ ] IDs reales de AdMob puestos al compilar.
-- [ ] Botones de debug fuera: ya están ocultos en release (`kDebugMode`).
-- [ ] Probado en tu celular y en una tablet o emulador de tablet.
+- [ ] Llave de firma creada y con copia fuera de tu PC.
+- [ ] `applicationId` propio.
+- [ ] Correo real en la política y política publicada.
+- [ ] IDs reales de AdMob en `ids_admob.json`.
+- [ ] Suscripción `cuadra_pro_mensual` creada y probada con cuenta de prueba.
+- [ ] Probada en tu celular y en una tablet.

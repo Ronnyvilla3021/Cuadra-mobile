@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/money.dart';
+import '../../core/utils/pantalla.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/empleados_queries.dart';
 import '../../data/database/enums.dart';
@@ -80,7 +81,7 @@ class _EmpleadoFormSheetState extends ConsumerState<EmpleadoFormSheet> {
         20,
         0,
         20,
-        20 + MediaQuery.viewInsetsOf(context).bottom,
+        espacioInferiorHoja(context),
       ),
       child: SingleChildScrollView(
         child: Form(

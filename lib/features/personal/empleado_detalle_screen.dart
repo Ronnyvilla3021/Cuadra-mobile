@@ -142,16 +142,28 @@ class EmpleadoDetalleScreen extends ConsumerWidget {
                 label: const Text('Registrar pago'),
               ),
               const SizedBox(height: 20),
-              Text('Historial de pagos', style: textTheme.titleMedium),
-              const SizedBox(height: 4),
-              if (pagos.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text('Todavía no hay pagos.', style: textTheme.bodySmall),
-                ),
-              for (final p in pagos)
+              Card(
+                margin: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                      child: Text(
+                        'Historial de pagos',
+                        style: textTheme.titleMedium,
+                      ),
+                    ),
+                    if (pagos.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                        child: Text(
+                          'Todavía no hay pagos.',
+                          style: textTheme.bodySmall,
+                        ),
+                      ),
+                    for (final p in pagos)
                 ListTile(
-                  contentPadding: EdgeInsets.zero,
                   leading: CircleAvatar(
                     backgroundColor: AppColors.expense.withValues(alpha: 0.15),
                     child: const Icon(Icons.arrow_upward, color: AppColors.expense),
@@ -195,6 +207,9 @@ class EmpleadoDetalleScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+                  ],
+                ),
+              ),
             ],
           ),
         );

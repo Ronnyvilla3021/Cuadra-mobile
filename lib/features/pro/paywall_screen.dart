@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/widgets/imagenes_app.dart';
+import 'facturacion.dart';
 import 'pro_providers.dart';
 
 /// Pantalla de venta de Cuadra PRO.
@@ -20,27 +23,49 @@ class PaywallScreen extends ConsumerWidget {
   ];
 
   void _suscribirse(BuildContext context, WidgetRef ref) {
-    final mensaje = ScaffoldMessenger.of(context);
-    if (kDebugMode) {
-      // Simulación SOLO para desarrollo. Nunca activa PRO en una app publicada.
+    final facturacion = ref.read(facturacionProvider);
+    if (facturacion.producto == null && kDebugMode) {
+      // Simulación SOLO para desarrollo, cuando Google Play aún no conoce el
+      // producto. Nunca activa PRO en una app publicada.
       ref.read(isProProvider.notifier).establecer(true);
-      mensaje.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Modo de prueba: PRO activado')),
       );
-    } else {
-      mensaje.showSnackBar(
-        const SnackBar(
-          content: Text('Las suscripciones estarán disponibles muy pronto.'),
-        ),
-      );
+      return;
     }
+    ref.read(facturacionProvider.notifier).comprar();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final esPro = ref.watch(isProProvider);
+    final facturacion = ref.watch(facturacionProvider);
+    final precio = facturacion.producto == null
+        ? r'$2.50 / mes'
+        : '${facturacion.producto!.price} / mes';
 
+    // Esta pantalla siempre es oscura y es la única con «fondo_pro.jpg».
+    return Theme(
+      data: AppTheme.dark,
+      child: FondoImagen(
+        ruta: kFondoPro,
+        colorVelo: Colors.black,
+        opacidadVelo: kVeloFondoPro,
+        colorRespaldo: const Color(0xFF0B1330),
+        child: _contenido(context, ref, textTheme, esPro, facturacion, precio),
+      ),
+    );
+  }
+
+  Widget _contenido(
+    BuildContext context,
+    WidgetRef ref,
+    TextTheme textTheme,
+    bool esPro,
+    EstadoFacturacion facturacion,
+    String precio,
+  ) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -57,10 +82,22 @@ class PaywallScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(
-                    Icons.workspace_premium,
-                    size: 64,
-                    color: AppColors.pro,
+                  const Center(
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        LogoCuadra(size: 96),
+                        Positioned(
+                          right: -6,
+                          bottom: -6,
+                          child: Icon(
+                            Icons.workspace_premium,
+                            size: 34,
+                            color: AppColors.pro,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -94,7 +131,7 @@ class PaywallScreen extends ConsumerWidget {
                     ),
                   const SizedBox(height: 24),
                   Text(
-                    r'$2.50 / mes',
+                    precio,
                     textAlign: TextAlign.center,
                     style: textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
@@ -102,9 +139,32 @@ class PaywallScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   FilledButton(
-                    onPressed: esPro ? null : () => _suscribirse(context, ref),
-                    child: Text(esPro ? 'Ya eres PRO' : 'Suscribirme'),
+                    onPressed: (esPro || facturacion.cargando)
+                        ? null
+                        : () => _suscribirse(context, ref),
+                    child: facturacion.cargando
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(esPro ? 'Ya eres PRO' : 'Suscribirme'),
                   ),
+                  if (facturacion.mensaje != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      facturacion.mensaje!,
+                      textAlign: TextAlign.center,
+                      style: textTheme.bodyMedium,
+                    ),
+                  ],
+                  if (!esPro)
+                    TextButton(
+                      onPressed: facturacion.cargando
+                          ? null
+                          : () => ref.read(facturacionProvider.notifier).restaurar(),
+                      child: const Text('Restaurar compras'),
+                    ),
                   const SizedBox(height: 8),
                   Text(
                     'Cancela cuando quieras',

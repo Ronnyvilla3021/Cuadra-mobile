@@ -249,11 +249,17 @@ class PrestamoDetalleScreen extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: 20),
-          Text('Historial', style: textTheme.titleMedium),
-          const SizedBox(height: 4),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: Text('Historial', style: textTheme.titleMedium),
+          ),
           for (final a in abonos)
             ListTile(
-              contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
                 backgroundColor: AppColors.income.withValues(alpha: 0.15),
                 child: const Icon(Icons.arrow_downward, color: AppColors.income),
@@ -275,7 +281,6 @@ class PrestamoDetalleScreen extends ConsumerWidget {
               ),
             ),
           ListTile(
-            contentPadding: EdgeInsets.zero,
             leading: CircleAvatar(
               backgroundColor: AppColors.expense.withValues(alpha: 0.15),
               child: const Icon(Icons.arrow_upward, color: AppColors.expense),
@@ -293,9 +298,12 @@ class PrestamoDetalleScreen extends ConsumerWidget {
           ),
           if (abonos.isEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
               child: Text('Todavía no hay pagos.', style: textTheme.bodySmall),
             ),
+              ],
+            ),
+          ),
         ],
       ),
     );

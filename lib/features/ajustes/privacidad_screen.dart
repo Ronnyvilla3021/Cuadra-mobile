@@ -12,15 +12,34 @@ class PrivacidadScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Política de privacidad')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
-          Text('Última actualización: $kFechaPolitica', style: textTheme.bodySmall),
-          for (final (titulo, texto) in politicaPrivacidad) ...[
-            const SizedBox(height: 20),
-            Text(titulo, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-            Text(texto, style: textTheme.bodyMedium),
-          ],
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Última actualización: $kFechaPolitica',
+                    style: textTheme.bodySmall,
+                  ),
+                  for (final (titulo, texto) in politicaPrivacidad) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      titulo,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(texto, style: textTheme.bodyMedium),
+                  ],
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

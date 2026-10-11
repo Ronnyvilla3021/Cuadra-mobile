@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/money.dart';
+import '../../core/utils/pantalla.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/enums.dart';
 import '../../data/providers.dart';
@@ -87,7 +88,7 @@ class _MovimientoSheetState extends ConsumerState<MovimientoSheet> {
         20,
         0,
         20,
-        20 + MediaQuery.viewInsetsOf(context).bottom,
+        espacioInferiorHoja(context),
       ),
       child: SingleChildScrollView(
         child: Form(

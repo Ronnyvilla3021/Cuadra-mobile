@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/money.dart';
+import '../../core/utils/pantalla.dart';
 import '../ads/ad_config.dart';
 import '../alertas/servicio_alertas.dart';
 import 'ajustes_prestamos.dart';
@@ -64,7 +65,7 @@ class _AjustesPrestamosSheetState extends ConsumerState<AjustesPrestamosSheet> {
         20,
         0,
         20,
-        20 + MediaQuery.viewInsetsOf(context).bottom,
+        espacioInferiorHoja(context),
       ),
       child: SingleChildScrollView(
         child: Form(

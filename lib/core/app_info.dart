@@ -12,3 +12,7 @@ const kCorreoContacto = 'tu-correo@ejemplo.com';
 
 /// Fecha de la última actualización de la política de privacidad.
 const kFechaPolitica = '9 de octubre de 2026';
+
+/// ID del producto de suscripción PRO. Debe ser igual al que crees en
+/// Play Console > Monetizar > Suscripciones.
+const kProductoPro = 'cuadra_pro_mensual';

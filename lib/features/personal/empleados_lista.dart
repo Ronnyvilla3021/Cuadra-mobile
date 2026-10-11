@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/utils/fechas.dart';
+import '../../core/widgets/imagenes_app.dart';
 import '../../core/utils/money.dart';
 import 'empleado_form_sheet.dart';
 import 'empleados_ui.dart';
@@ -18,7 +19,7 @@ class EmpleadosLista extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Empleados')),
+      appBar: AppBar(title: const TituloConLetras('Empleados')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showModalBottomSheet<bool>(
           context: context,
